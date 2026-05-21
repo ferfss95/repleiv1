@@ -179,6 +179,14 @@ export const indicadoresModule: ModuleConfig = {
   // metricDisplayOrder: referência canônica; colunas na tabela = ordem de seleção no menu lateral.
   metrics: [
     { id: 'ind_tkm',           label: 'Ticket Médio (TKM)',        icon: ShoppingCart },
+    {
+      id: 'qtd_vendas_loja',
+      label: 'Qtd Vendas',
+      icon: Hash,
+      tooltip:
+        'Quantidade de vendas realizadas (proxy baseado em ROB dividido pelo Ticket Médio).',
+    },
+    { id: 'conversao',         label: 'Conversão',                icon: Percent      },
     { id: 'ind_pmi',           label: 'Preço Médio Item (PMI)',   icon: Tag          },
     { id: 'ind_ipc',           label: 'Itens por Cliente (IPC)',  icon: Users        },
     { id: 'ind_paridade',      label: 'Paridade',                 icon: Activity     },
@@ -228,6 +236,8 @@ export const indicadoresModule: ModuleConfig = {
   // ── Ordem das colunas na tabela de resultados ─────────────
   metricDisplayOrder: [
     'ind_tkm',
+    'qtd_vendas_loja',
+    'conversao',
     'ind_pmi',
     'ind_ipc',
     'ind_paridade',

@@ -11,7 +11,7 @@
  * REGRA DE OURO: Esta lógica está homologada. Não altere o comportamento.
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   LOCATION_ATTRIBUTES,
   MAX_GROUPING_LEVELS,
@@ -22,6 +22,10 @@ import {
   type ModuleConfig,
 } from '../modules/types';
 import { isAttributeVisibleInUi } from '../data/attributeUiVisibility';
+import {
+  isRedeStaticDisplayAttribute,
+  REDE_LOCKED_NETWORK,
+} from '../data/attributeUiConfig';
 import type { Module } from '../constants';
 import {
   REDE_OPTIONS,
@@ -67,6 +71,34 @@ export const useAttributeFilters = (props: UseAttributeFiltersProps) => {
   const [selections, setSelections] = useState<Record<string, string[]>>({});
   const [grouping, setGrouping] = useState<string[]>([]);
   const [exclusions, setExclusions] = useState<Record<string, string[]>>({});
+
+  const moduleId = currentModuleConfig.id as Module;
+
+  // REDE v.1: logo estático; filtro interno sempre Centauro quando o atributo está visível.
+  useEffect(() => {
+    if (!isAttributeVisibleInUi(moduleId, 'rede')) return;
+
+    setSelections((prev) => {
+      const current = prev.rede;
+      if (
+        current?.length === 1 &&
+        current[0] === REDE_LOCKED_NETWORK
+      ) {
+        return prev;
+      }
+      return { ...prev, rede: [REDE_LOCKED_NETWORK] };
+    });
+
+    setExclusions((prev) => {
+      if (!prev.rede?.length) return prev;
+      const { rede: _removed, ...rest } = prev;
+      return rest;
+    });
+
+    setGrouping((prev) =>
+      prev.includes('rede') ? prev.filter((id) => id !== 'rede') : prev,
+    );
+  }, [moduleId, setSelections, setExclusions, setGrouping]);
 
   // ─── GET ATTRIBUTE OPTIONS (Dynamic options based on selections) ───
   const getAttributeOptions = useCallback(
@@ -162,6 +194,8 @@ export const useAttributeFilters = (props: UseAttributeFiltersProps) => {
   // ─── HANDLE ATTRIBUTE CLICK (Grouping toggle) ───
   const handleAttributeClick = useCallback(
     (attrId: string) => {
+      if (isRedeStaticDisplayAttribute(attrId)) return;
+
       const module = currentModuleConfig.id as Module;
       if (!isAttributeVisibleInUi(module, attrId)) return;
 

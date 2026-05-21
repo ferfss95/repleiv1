@@ -11,6 +11,8 @@ import {
   CANAL_GROUP_CENTAURO_IDS,
   CANAL_GROUP_NIKE_IDS,
 } from "../referenceData";
+import { isRedeStaticDisplayAttribute } from "../data/attributeUiConfig";
+import { RedeAttributeButton } from "./RedeAttributeButton";
 
 /** Paleta neutra — default / hover / desativado agrupamento */
 const NEUTRAL_TEXT = "#808080";
@@ -96,6 +98,10 @@ export function AttributeCard({
       }))
       .filter((g) => g.options.length > 0);
   }, [attribute.id, searchTerm]);
+
+  if (isRedeStaticDisplayAttribute(attribute.id)) {
+    return <RedeAttributeButton />;
+  }
 
   const handleToggleOption = (value: string, isSelection: boolean) => {
     const currentList = isSelection ? currentSelection : currentExclusion;

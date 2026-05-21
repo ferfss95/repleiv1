@@ -19,7 +19,7 @@ import { groupMonthsByYear, getTodayFormatted } from "../../dateUtils";
 import {
   getSelectableMonthsForYear,
   isMonthPeriodBlocked,
-  isYearPeriodBlocked,
+  isYearPeriodSelectable,
 } from "../../utils/dateSelectionRules";
 import { PeriodBlockedOptionTooltip } from "../calendar/PeriodBlockedTooltip";
 import { InteractiveMandala } from "../InteractiveMandala";
@@ -1050,7 +1050,7 @@ export const SelectionView = React.memo<SelectionViewProps>(function SelectionVi
                                                   year,
                                                 );
                                               const yearBlocked =
-                                                isYearPeriodBlocked(
+                                                !isYearPeriodSelectable(
                                                   year,
                                                   analysisMode,
                                                 );
@@ -2421,7 +2421,7 @@ export const SelectionView = React.memo<SelectionViewProps>(function SelectionVi
                                                       year,
                                                     );
                                                   const yearBlocked =
-                                                    isYearPeriodBlocked(
+                                                    !isYearPeriodSelectable(
                                                       year,
                                                       analysisMode,
                                                     );
@@ -2530,7 +2530,7 @@ export const SelectionView = React.memo<SelectionViewProps>(function SelectionVi
                                                       year,
                                                     );
                                                   const yearBlocked =
-                                                    isYearPeriodBlocked(
+                                                    !isYearPeriodSelectable(
                                                       year,
                                                       analysisMode,
                                                     );

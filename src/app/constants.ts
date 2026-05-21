@@ -7,6 +7,10 @@ import {
   Truck,
   UserCircle,
 } from 'lucide-react';
+import {
+  buildPeriodSelectionMonthsOptions,
+  buildPeriodSelectionYearsOptions,
+} from './data/periodSelectionLimits';
 
 // Definição do ícone StoreIcon (importado no App.tsx original)
 const StoreIcon = Building2;
@@ -51,8 +55,8 @@ export const WEEKDAY_LABELS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 export const WEEKDAY_FULL = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 export const MAX_WEEKLY_DAYS = 20;
 
-// Years options
-export const YEARS_OPTIONS = ['2026', '2025', '2024', '2023', '2022'];
+// Years options (janela dinâmica: até PERIOD_SELECTION_MAX_YEARS_BACK)
+export const YEARS_OPTIONS = buildPeriodSelectionYearsOptions();
 
 // Hora a Hora hours
 export const HORA_A_HORA_HOURS = [
@@ -62,19 +66,8 @@ export const HORA_A_HORA_HOURS = [
   "18h", "19h", "20h", "21h", "22h", "23h",
 ];
 
-// Pre-generated list of 60 months (most recent first) for period selectors
-export const MONTHS_OPTIONS: string[] = (() => {
-  const result: string[] = [];
-  const now = new Date();
-  now.setDate(1);
-  for (let i = 0; i < 60; i++) {
-    const d = new Date(now);
-    d.setMonth(d.getMonth() - i);
-    const m = d.toLocaleString('pt-BR', { month: 'long' });
-    result.push(`${m.charAt(0).toUpperCase() + m.slice(1)} ${d.getFullYear()}`);
-  }
-  return result;
-})();
+// Meses exibíveis no seletor (do mês corrente até o limite de lookback)
+export const MONTHS_OPTIONS: string[] = buildPeriodSelectionMonthsOptions();
 
 // Helper functions
 export function getWeekdayDatesInRange(startStr: string, endStr: string, weekdays: number[]): Date[] {

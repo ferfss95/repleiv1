@@ -1,5 +1,11 @@
 import type { AnalysisMode } from '../types/wizard';
 import {
+  getPeriodSelectionMinDate,
+  isBeforePeriodSelectionMinDate,
+  isMonthBeforePeriodSelectionMin,
+  isYearBeforePeriodSelectionMin,
+} from '../data/periodSelectionLimits';
+import {
   formatDate,
   getCurrentMonthString,
   getCurrentYearString,
@@ -29,10 +35,14 @@ export function isFutureCalendarDay(date: Date, reference = getToday()): boolean
   return day.getTime() > ref.getTime();
 }
 
-/** Bloqueia datas futuras; bloqueia hoje (D0) exceto em Intraday. */
-export function isCalendarDayBlocked(date: Date, analysisMode: AnalysisMode): boolean {
+/** Bloqueia datas futuras, antes do limite de lookback e hoje (D0) exceto em Intraday. */
+export function isCalendarDayBlocked(
+  date: Date,
+  analysisMode?: AnalysisMode,
+): boolean {
+  if (isBeforePeriodSelectionMinDate(date)) return true;
   if (isFutureCalendarDay(date)) return true;
-  if (isIntradayAnalysisMode(analysisMode)) return false;
+  if (!analysisMode || isIntradayAnalysisMode(analysisMode)) return false;
   return isSameCalendarDay(date);
 }
 
@@ -59,22 +69,24 @@ function shiftDateStringFromToday(dateStr: string): string {
   return getYesterdayFormatted();
 }
 
-export function sanitizeDateRangeForAnalysisMode(
-  range: { start: string; end: string },
-  analysisMode: AnalysisMode,
-): { start: string; end: string } {
-  if (isIntradayAnalysisMode(analysisMode)) return range;
+function clampDateStringToPeriodSelectionMin(dateStr: string): string {
+  const parsed = parseDateBRToDay(dateStr);
+  if (!parsed || !isBeforePeriodSelectionMinDate(parsed)) return dateStr;
+  return formatDateBRFromDay(getPeriodSelectionMinDate());
+}
 
+function clampDateRangeToPeriodSelectionMin(range: {
+  start: string;
+  end: string;
+}): { start: string; end: string } {
   let { start, end } = range;
-  if (isDateStringToday(start)) start = getYesterdayFormatted();
-  if (isDateStringToday(end)) end = getYesterdayFormatted();
+  if (start) start = clampDateStringToPeriodSelectionMin(start);
+  if (end) end = clampDateStringToPeriodSelectionMin(end);
 
   if (start && end) {
-    const [sd, sm, sy] = start.split('/').map(Number);
-    const [ed, em, ey] = end.split('/').map(Number);
-    const startDate = new Date(sy, sm - 1, sd);
-    const endDate = new Date(ey, em - 1, ed);
-    if (startDate.getTime() > endDate.getTime()) {
+    const startDate = parseDateBRToDay(start);
+    const endDate = parseDateBRToDay(end);
+    if (startDate && endDate && startDate.getTime() > endDate.getTime()) {
       end = start;
     }
   }
@@ -82,30 +94,61 @@ export function sanitizeDateRangeForAnalysisMode(
   return { start, end };
 }
 
+export function sanitizeDateRangeForAnalysisMode(
+  range: { start: string; end: string },
+  analysisMode: AnalysisMode,
+): { start: string; end: string } {
+  let { start, end } = range;
+
+  if (!isIntradayAnalysisMode(analysisMode)) {
+    if (isDateStringToday(start)) start = getYesterdayFormatted();
+    if (isDateStringToday(end)) end = getYesterdayFormatted();
+  }
+
+  if (start && end) {
+    const startDate = parseDateBRToDay(start);
+    const endDate = parseDateBRToDay(end);
+    if (startDate && endDate && startDate.getTime() > endDate.getTime()) {
+      end = start;
+    }
+  }
+
+  return clampDateRangeToPeriodSelectionMin({ start, end });
+}
+
 export function sanitizeSpecificDaysForAnalysisMode(
   days: string[],
   analysisMode: AnalysisMode,
 ): string[] {
-  if (isIntradayAnalysisMode(analysisMode)) return days;
-  return days.filter((day) => !isDateStringToday(day));
+  return days.filter((day) => {
+    const parsed = parseDateBRToDay(day);
+    if (!parsed) return false;
+    if (isBeforePeriodSelectionMinDate(parsed)) return false;
+    if (isIntradayAnalysisMode(analysisMode)) return true;
+    return !isDateStringToday(day);
+  });
 }
 
 export function sanitizeMonthsForAnalysisMode(
   months: string[],
   analysisMode: AnalysisMode,
 ): string[] {
-  if (isIntradayAnalysisMode(analysisMode)) return months;
-  const current = getCurrentMonthString();
-  return months.filter((month) => month !== current);
+  return months.filter((month) => {
+    if (isMonthBeforePeriodSelectionMin(month)) return false;
+    if (isIntradayAnalysisMode(analysisMode)) return true;
+    return month !== getCurrentMonthString();
+  });
 }
 
 export function sanitizeYearsForAnalysisMode(
   years: string[],
   analysisMode: AnalysisMode,
 ): string[] {
-  if (isIntradayAnalysisMode(analysisMode)) return years;
-  const current = getCurrentYearString();
-  return years.filter((year) => year !== current);
+  return years.filter((year) => {
+    if (isYearBeforePeriodSelectionMin(year)) return false;
+    if (isIntradayAnalysisMode(analysisMode)) return true;
+    return year !== getCurrentYearString();
+  });
 }
 
 /** Meses selecionáveis de um ano (ex.: accordion Mensal). */
@@ -113,7 +156,21 @@ export function getSelectableMonthsForYear(
   yearMonths: string[],
   analysisMode: AnalysisMode,
 ): string[] {
-  return yearMonths.filter((month) => !isMonthPeriodBlocked(month, analysisMode));
+  return yearMonths.filter(
+    (month) =>
+      !isMonthBeforePeriodSelectionMin(month) &&
+      !isMonthPeriodBlocked(month, analysisMode),
+  );
+}
+
+export function isYearPeriodSelectable(
+  year: string,
+  analysisMode: AnalysisMode,
+): boolean {
+  return (
+    !isYearBeforePeriodSelectionMin(year) &&
+    !isYearPeriodBlocked(year, analysisMode)
+  );
 }
 
 export function parseDateBRToDay(dateStr: string): Date | undefined {

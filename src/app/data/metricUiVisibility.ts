@@ -7,7 +7,6 @@ import type { Module } from '../constants';
 export const METRIC_UI_VISIBLE_BY_MODULE: Record<Module, ReadonlySet<string>> = {
   PRODUTO: new Set([
     'venda',
-    'qtd_venda',
     'qtd_itens',
     'lucro_bruto',
     'margem',
@@ -16,15 +15,14 @@ export const METRIC_UI_VISIBLE_BY_MODULE: Record<Module, ReadonlySet<string>> = 
   LOJA: new Set([
     'rob',
     'qtd_itens_loja',
-    'qtd_vendas_loja',
-    'margem_bruta',
     'valor_meta',
     'desvio_meta_r',
     'desvio_meta_p',
-    'conversao',
   ]),
   INDICADORES: new Set([
     'ind_tkm',
+    'qtd_vendas_loja',
+    'conversao',
     'ind_ipc',
     'ind_paridade',
     'ind_cupons_mistos',

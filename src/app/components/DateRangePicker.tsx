@@ -85,7 +85,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   const handleDayClick = useCallback((date: Date, modifiers: Record<string, boolean>) => {
     // Ignora dias externos ao mês e dias desabilitados
     if (modifiers.outside || modifiers.disabled) return;
-    if (analysisMode && isCalendarDayBlocked(date, analysisMode)) return;
+    if (isCalendarDayBlocked(date, analysisMode)) return;
 
     setHoverDate(undefined);
     const clicked = toDay(date);

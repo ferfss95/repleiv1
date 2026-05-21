@@ -6,6 +6,9 @@ import { isProdutoDomainAttrId } from '../modules/produto';
  * Demais atributos permanecem no código, mas não aparecem na UI.
  */
 
+/** Ocultos na UI em todos os módulos (definição e handlers permanecem no código). */
+const ATTRIBUTE_UI_HIDDEN_ALL_MODULES = new Set(['tipo']);
+
 /** Bloco Produto: PRODUTO (domínio) e LOJA/EXTRAVIOS (linha extra «Produto»). */
 const MODULES_WITH_PRODUTO_SECTION = new Set<Module>(['PRODUTO', 'LOJA', 'EXTRAVIOS']);
 
@@ -29,18 +32,16 @@ const LOCATION_UI_VISIBLE_BY_MODULE: Record<Module, ReadonlySet<string>> = {
   PRODUTO: new Set([
     'rede',
     'canal',
-    'tipo',
     'estado',
     'regional',
     'cidade',
     'loja',
   ]),
-  LOJA: new Set(['rede', 'tipo', 'estado', 'regional', 'cidade', 'loja']),
-  INDICADORES: new Set(['rede', 'tipo', 'estado', 'regional', 'cidade', 'loja']),
+  LOJA: new Set(['rede', 'estado', 'regional', 'cidade', 'loja']),
+  INDICADORES: new Set(['rede', 'estado', 'regional', 'cidade', 'loja']),
   EXTRAVIOS: new Set([
     'rede',
     'canal',
-    'tipo',
     'estado',
     'regional',
     'cidade',
@@ -49,6 +50,9 @@ const LOCATION_UI_VISIBLE_BY_MODULE: Record<Module, ReadonlySet<string>> = {
 };
 
 export function isAttributeVisibleInUi(module: Module, attrId: string): boolean {
+  if (ATTRIBUTE_UI_HIDDEN_ALL_MODULES.has(attrId)) {
+    return false;
+  }
   if (isProdutoDomainAttrId(attrId)) {
     return (
       MODULES_WITH_PRODUTO_SECTION.has(module) &&

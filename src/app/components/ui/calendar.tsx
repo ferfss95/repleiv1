@@ -26,7 +26,7 @@ function Calendar({
 }: CalendarProps) {
   const mergedDisabled = React.useCallback(
     (date: Date) => {
-      if (analysisMode && isCalendarDayBlocked(date, analysisMode)) return true;
+      if (isCalendarDayBlocked(date, analysisMode)) return true;
       if (typeof disabled === "function") return disabled(date);
       return false;
     },
@@ -42,7 +42,7 @@ function Calendar({
     <DayPicker
       showOutsideDays={showOutsideDays}
       weekStartsOn={1}
-      disabled={analysisMode ? mergedDisabled : disabled}
+      disabled={mergedDisabled}
       className={cn("p-3", className)}
       classNames={{
         months: "flex flex-col sm:flex-row gap-2",

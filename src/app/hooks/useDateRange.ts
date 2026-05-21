@@ -215,18 +215,22 @@ export const useDateRange = ({ analysisMode }: UseDateRangeProps) => {
     }
   }, [analysisMode, periodType]);
 
-  // ─── Remove D0 (hoje) ao sair do Intraday ───
+  // ─── Regras de período: D0 (fora Intraday) e lookback máximo ───
   useEffect(() => {
-    if (analysisMode === "horaahora") return;
+    const sanitizeRange = (prev: DateRangeState) =>
+      sanitizeDateRangeForAnalysisMode(prev, analysisMode);
 
-    setDateRange((prev) => sanitizeDateRangeForAnalysisMode(prev, analysisMode));
+    setDateRange(sanitizeRange);
+    setWeeklyDateRange(sanitizeRange);
+    setCompWeeklyRange1(sanitizeRange);
+    setCompWeeklyRange2(sanitizeRange);
     setSelectedSpecificDays((prev) =>
       sanitizeSpecificDaysForAnalysisMode(prev, analysisMode),
     );
     setSelectedMonths((prev) => sanitizeMonthsForAnalysisMode(prev, analysisMode));
     setSelectedYears((prev) => sanitizeYearsForAnalysisMode(prev, analysisMode));
-    setCompDateRange1((prev) => sanitizeDateRangeForAnalysisMode(prev, analysisMode));
-    setCompDateRange2((prev) => sanitizeDateRangeForAnalysisMode(prev, analysisMode));
+    setCompDateRange1(sanitizeRange);
+    setCompDateRange2(sanitizeRange);
     setCompSpecificDays1((prev) =>
       sanitizeSpecificDaysForAnalysisMode(prev, analysisMode),
     );
@@ -237,7 +241,7 @@ export const useDateRange = ({ analysisMode }: UseDateRangeProps) => {
     setCompMonths2((prev) => sanitizeMonthsForAnalysisMode(prev, analysisMode));
     setCompYears1((prev) => sanitizeYearsForAnalysisMode(prev, analysisMode));
     setCompYears2((prev) => sanitizeYearsForAnalysisMode(prev, analysisMode));
-  }, [analysisMode]);
+  }, [analysisMode, periodType]);
 
   // ─── Auto P2: LY (prioridade) ou MDSAA quando P1 muda ───
   useEffect(() => {
@@ -247,15 +251,27 @@ export const useDateRange = ({ analysisMode }: UseDateRangeProps) => {
       if (periodType === "Diário") {
         if (dailySubType === "periodo") {
           setCompDateRange2(
-            getLYRange(compDateRange1.start, compDateRange1.end),
+            sanitizeDateRangeForAnalysisMode(
+              getLYRange(compDateRange1.start, compDateRange1.end),
+              analysisMode,
+            ),
           );
         } else {
-          setCompSpecificDays2(getLYSpecificDays(compSpecificDays1));
+          setCompSpecificDays2(
+            sanitizeSpecificDaysForAnalysisMode(
+              getLYSpecificDays(compSpecificDays1),
+              analysisMode,
+            ),
+          );
         }
       } else if (periodType === "Mensal") {
-        setCompMonths2(getLYMonths(compMonths1));
+        setCompMonths2(
+          sanitizeMonthsForAnalysisMode(getLYMonths(compMonths1), analysisMode),
+        );
       } else if (periodType === "Anual") {
-        setCompYears2(getLYYears(compYears1));
+        setCompYears2(
+          sanitizeYearsForAnalysisMode(getLYYears(compYears1), analysisMode),
+        );
       }
       return;
     }
@@ -265,17 +281,23 @@ export const useDateRange = ({ analysisMode }: UseDateRangeProps) => {
     if (periodType === "Diário") {
       if (dailySubType === "periodo") {
         const mdsaaRange = getMDSAARange(compDateRange1.start, compDateRange1.end);
-        setCompDateRange2(mdsaaRange);
+        setCompDateRange2(
+          sanitizeDateRangeForAnalysisMode(mdsaaRange, analysisMode),
+        );
       } else {
         const mdsaaDays = compSpecificDays1.map((day) => getMDSAA(day));
-        setCompSpecificDays2(mdsaaDays);
+        setCompSpecificDays2(
+          sanitizeSpecificDaysForAnalysisMode(mdsaaDays, analysisMode),
+        );
       }
     } else if (periodType === "Mensal") {
       const mdsaaMonths = getMDSAAMonths(compMonths1);
-      setCompMonths2(mdsaaMonths);
+      setCompMonths2(
+        sanitizeMonthsForAnalysisMode(mdsaaMonths, analysisMode),
+      );
     } else if (periodType === "Anual") {
       const mdsaaYears = getMDSAAYears(compYears1);
-      setCompYears2(mdsaaYears);
+      setCompYears2(sanitizeYearsForAnalysisMode(mdsaaYears, analysisMode));
     }
   }, [
     analysisMode,
