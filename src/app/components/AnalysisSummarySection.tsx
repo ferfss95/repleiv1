@@ -5,7 +5,8 @@
 import React, { useMemo } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { Calendar as CalendarIcon, Filter, Anchor, Ban } from "lucide-react";
-import { LOCATION_ATTRIBUTES } from "../constants";
+import { LOCATION_ATTRIBUTES, type Module } from "../constants";
+import { isAttributeVisibleInUi } from "../data/attributeUiVisibility";
 import {
   collectAllDomainAttributes,
   type ModuleConfig,
@@ -81,6 +82,8 @@ export const AnalysisSummarySection = React.memo(function AnalysisSummarySection
   compWeeklyComputedDays1,
   compWeeklyComputedDays2,
 }: AnalysisSummarySectionProps) {
+  const moduleId = moduleConfig.id as Module;
+
   const periodInput: PeriodSummaryInput = useMemo(
     () => ({
       analysisMode,
@@ -143,21 +146,36 @@ export const AnalysisSummarySection = React.memo(function AnalysisSummarySection
   const includeEntries = useMemo(
     () =>
       Object.entries(selections)
-        .filter(([, vals]) => vals && vals.length > 0)
+        .filter(
+          ([key, vals]) =>
+            vals &&
+            vals.length > 0 &&
+            isAttributeVisibleInUi(moduleId, key),
+        )
         .sort(([a], [b]) =>
           labelForAttr(moduleConfig, a).localeCompare(labelForAttr(moduleConfig, b), "pt-BR"),
         ),
-    [selections, moduleConfig],
+    [selections, moduleConfig, moduleId],
   );
 
   const excludeEntries = useMemo(
     () =>
       Object.entries(exclusions)
-        .filter(([, vals]) => vals && vals.length > 0)
+        .filter(
+          ([key, vals]) =>
+            vals &&
+            vals.length > 0 &&
+            isAttributeVisibleInUi(moduleId, key),
+        )
         .sort(([a], [b]) =>
           labelForAttr(moduleConfig, a).localeCompare(labelForAttr(moduleConfig, b), "pt-BR"),
         ),
-    [exclusions, moduleConfig],
+    [exclusions, moduleConfig, moduleId],
+  );
+
+  const visibleGrouping = useMemo(
+    () => grouping.filter((id) => isAttributeVisibleInUi(moduleId, id)),
+    [grouping, moduleId],
   );
 
   const periodDetailLines = useMemo((): string[] => {
@@ -330,7 +348,7 @@ export const AnalysisSummarySection = React.memo(function AnalysisSummarySection
           </Popover.Root>
         ))}
 
-        {grouping.length > 0 && (
+        {visibleGrouping.length > 0 && (
           <Popover.Root>
             <Popover.Trigger asChild>
               <button
@@ -341,9 +359,9 @@ export const AnalysisSummarySection = React.memo(function AnalysisSummarySection
                 <Anchor size={10} className="shrink-0 text-[#2C2C2C]" strokeWidth={2.25} />
                 <span className="uppercase">Agrupamento:</span>
                 <span className="font-normal ml-0.5">
-                  {grouping.length > 1
-                    ? `${grouping.length} níveis`
-                    : labelForAttr(moduleConfig, grouping[0])}
+                  {visibleGrouping.length > 1
+                    ? `${visibleGrouping.length} níveis`
+                    : labelForAttr(moduleConfig, visibleGrouping[0])}
                 </span>
               </button>
             </Popover.Trigger>
@@ -356,7 +374,7 @@ export const AnalysisSummarySection = React.memo(function AnalysisSummarySection
                   Níveis de agrupamento
                 </h4>
                 <div className="space-y-1">
-                  {grouping.map((gId, gIdx) => (
+                  {visibleGrouping.map((gId, gIdx) => (
                     <div
                       key={gId}
                       className="text-xs text-[#2C2C2C] py-1.5 border-b border-[#F1F1F1] last:border-0 flex gap-2"

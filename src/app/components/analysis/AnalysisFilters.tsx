@@ -21,6 +21,7 @@ import {
   type Step,
 } from '../../constants';
 import { getModuleColors, type ModuleColors } from '../../constants/moduleColors';
+import { filterAttributesVisibleInUi } from '../../data/attributeUiVisibility';
 
 // ══════════════════════════════════════════════════════════════════
 // TYPES
@@ -67,6 +68,15 @@ export const AnalysisFilters: React.FC<AnalysisFiltersProps> = ({
   const colors = moduleColors ?? getModuleColors(currentModule);
   const groupingLimitReached =
     currentStep === "grouping" && grouping.length >= MAX_GROUPING_LEVELS;
+  const visibleDomainAttributes = filterAttributesVisibleInUi(
+    currentModule,
+    currentModuleConfig.domainAttributes,
+  );
+  const visibleLocationAttributes = filterAttributesVisibleInUi(
+    currentModule,
+    LOCATION_ATTRIBUTES,
+  );
+
   return (
     <div className="px-6 py-6">
       <div className="space-y-8">
@@ -81,7 +91,7 @@ export const AnalysisFilters: React.FC<AnalysisFiltersProps> = ({
             </div>
           )}
           <ScrollableRow>
-            {currentModuleConfig.domainAttributes.map((attr: any) => (
+            {visibleDomainAttributes.map((attr: any) => (
               <SmartAttributeCard
                 key={attr.id}
                 attribute={{
@@ -125,7 +135,7 @@ export const AnalysisFilters: React.FC<AnalysisFiltersProps> = ({
                 <div className="h-px flex-1 bg-slate-200" />
               </div>
               <ScrollableRow>
-                {row.attributes.map((attr: any) => (
+                {filterAttributesVisibleInUi(currentModule, row.attributes).map((attr: any) => (
                   <SmartAttributeCard
                     key={attr.id}
                     attribute={{
@@ -171,7 +181,7 @@ export const AnalysisFilters: React.FC<AnalysisFiltersProps> = ({
               <div className="h-px flex-1 bg-slate-200" />
             </div>
             <ScrollableRow>
-              {LOCATION_ATTRIBUTES.map((attr) => (
+              {visibleLocationAttributes.map((attr) => (
                 <SmartAttributeCard
                   key={attr.id}
                   attribute={{

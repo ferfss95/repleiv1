@@ -31,6 +31,7 @@ import { LyToggle } from "../LyToggle";
 import { LockedTooltip } from "../LockedTooltip";
 import type { AnalysisMode } from "../../types/wizard";
 import { NEUTRAL_PALETTE, type ModuleColors } from "../../constants/moduleColors";
+import { SHOW_DIAS_DA_SEMANA_PERIOD_UI } from "../../data/periodSelectionUiVisibility";
 
 const PERIOD_GRANULARITY_LABELS: Record<
   (typeof PERIOD_OPTIONS)[number],
@@ -221,49 +222,57 @@ export const SelectionView = React.memo<SelectionViewProps>(function SelectionVi
                               </div>
     
                               {/* Tabs container - apenas para Diário */}
-                              {periodType === "Diário" && (
-                                <div className="flex items-center gap-6 border-b border-[#e2e8f0] shrink-0">
-                                  <button
-                                    onClick={() =>
-                                      isPeriodEditable &&
-                                      setDailySubType("periodo")
-                                    }
-                                    disabled={!isPeriodEditable}
-                                    className={cn(
-                                      "pb-2 text-[13px] font-medium transition-all duration-200 flex items-center gap-2 border-b-2",
-                                      dailySubType === "periodo"
-                                        ? "text-[#314158] border-[#314158]"
-                                        : "text-[#90A1B9] hover:text-[#314158] border-transparent",
-                                      !isPeriodEditable &&
-                                        "cursor-not-allowed opacity-50",
-                                    )}
-                                  >
-                                    <CalendarRange size={14} />
-                                    Dias Corridos
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      isPeriodEditable &&
-                                      setDailySubType(
-                                        "diasdasemana",
-                                      )
-                                    }
-                                    disabled={!isPeriodEditable}
-                                    className={cn(
-                                      "pb-2 text-[13px] font-medium transition-all duration-200 flex items-center gap-2 border-b-2",
-                                      dailySubType ===
-                                        "diasdasemana"
-                                        ? "text-[#314158] border-[#314158]"
-                                        : "text-[#90A1B9] hover:text-[#314158] border-transparent",
-                                      !isPeriodEditable &&
-                                        "cursor-not-allowed opacity-50",
-                                    )}
-                                  >
-                                    <CalendarCheck size={14} />
-                                    Dias da Semana
-                                  </button>
-                                </div>
-                              )}
+                              {periodType === "Diário" &&
+                                (SHOW_DIAS_DA_SEMANA_PERIOD_UI ? (
+                                  <div className="flex items-center gap-6 border-b border-[#e2e8f0] shrink-0">
+                                    <button
+                                      onClick={() =>
+                                        isPeriodEditable &&
+                                        setDailySubType("periodo")
+                                      }
+                                      disabled={!isPeriodEditable}
+                                      className={cn(
+                                        "pb-2 text-[13px] font-medium transition-all duration-200 flex items-center gap-2 border-b-2",
+                                        dailySubType === "periodo"
+                                          ? "text-[#314158] border-[#314158]"
+                                          : "text-[#90A1B9] hover:text-[#314158] border-transparent",
+                                        !isPeriodEditable &&
+                                          "cursor-not-allowed opacity-50",
+                                      )}
+                                    >
+                                      <CalendarRange size={14} />
+                                      Dias Corridos
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        isPeriodEditable &&
+                                        setDailySubType("diasdasemana")
+                                      }
+                                      disabled={!isPeriodEditable}
+                                      className={cn(
+                                        "pb-2 text-[13px] font-medium transition-all duration-200 flex items-center gap-2 border-b-2",
+                                        dailySubType === "diasdasemana"
+                                          ? "text-[#314158] border-[#314158]"
+                                          : "text-[#90A1B9] hover:text-[#314158] border-transparent",
+                                        !isPeriodEditable &&
+                                          "cursor-not-allowed opacity-50",
+                                      )}
+                                    >
+                                      <CalendarCheck size={14} />
+                                      Dias da Semana
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-2 pb-2 border-b-2 border-[#314158] shrink-0">
+                                    <CalendarRange
+                                      size={14}
+                                      className="text-[#314158]"
+                                    />
+                                    <span className="text-[13px] font-medium text-[#314158]">
+                                      Dias Corridos
+                                    </span>
+                                  </div>
+                                ))}
     
                               {/* Tabs para Mensal */}
                               {periodType === "Mensal" && (
@@ -417,8 +426,9 @@ export const SelectionView = React.memo<SelectionViewProps>(function SelectionVi
                                 {analysisMode !== "comparativo" && (
                                   <>
                                     {periodType === "Diário" &&
-                                      dailySubType ===
-                                        "periodo" && (
+                                      (SHOW_DIAS_DA_SEMANA_PERIOD_UI
+                                        ? dailySubType === "periodo"
+                                        : true) && (
                                         <div className="flex flex-col gap-3 h-full w-[320px] shrink-0 mt-[14px]">
                                           <DateRangePicker
                                             analysisMode={analysisMode}
@@ -452,9 +462,9 @@ export const SelectionView = React.memo<SelectionViewProps>(function SelectionVi
                                         </div>
                                       )}
     
-                                    {periodType === "Diário" &&
-                                      dailySubType ===
-                                        "diasdasemana" && (
+                                    {SHOW_DIAS_DA_SEMANA_PERIOD_UI &&
+                                      periodType === "Diário" &&
+                                      dailySubType === "diasdasemana" && (
                                         <div className="flex flex-col gap-2 h-full min-h-0 w-[212px] shrink-0">
                                           {weeklyOverLimit && (
                                             <div className="text-[10px] text-[#9B2C2C] bg-[#FED7D7] px-2 py-1 rounded-md shrink-0">
@@ -1125,8 +1135,9 @@ export const SelectionView = React.memo<SelectionViewProps>(function SelectionVi
                                 {analysisMode === "comparativo" && (
                                   <div className="flex flex-col h-full gap-3">
                                     {periodType === "Diário" &&
-                                      dailySubType ===
-                                        "periodo" && (
+                                      (SHOW_DIAS_DA_SEMANA_PERIOD_UI
+                                        ? dailySubType === "periodo"
+                                        : true) && (
                                         <div className="flex flex-col gap-10 h-full w-[320px] shrink-0">
                                           {/* Period 1 */}
                                           <div className="flex flex-col gap-2">
@@ -1215,9 +1226,9 @@ export const SelectionView = React.memo<SelectionViewProps>(function SelectionVi
                                         </div>
                                       )}
     
-                                    {periodType === "Diário" &&
-                                      dailySubType ===
-                                        "diasdasemana" && (
+                                    {SHOW_DIAS_DA_SEMANA_PERIOD_UI &&
+                                      periodType === "Diário" &&
+                                      dailySubType === "diasdasemana" && (
                                         <div className="flex flex-col gap-2 h-full min-h-0">
                                           <div className="flex gap-10 flex-1 min-h-0">
                                             {/* P1 calendar */}

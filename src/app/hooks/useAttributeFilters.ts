@@ -21,6 +21,8 @@ import {
   collectAllDomainAttributes,
   type ModuleConfig,
 } from '../modules/types';
+import { isAttributeVisibleInUi } from '../data/attributeUiVisibility';
+import type { Module } from '../constants';
 import {
   REDE_OPTIONS,
   CANAL_OPTIONS,
@@ -160,6 +162,9 @@ export const useAttributeFilters = (props: UseAttributeFiltersProps) => {
   // ─── HANDLE ATTRIBUTE CLICK (Grouping toggle) ───
   const handleAttributeClick = useCallback(
     (attrId: string) => {
+      const module = currentModuleConfig.id as Module;
+      if (!isAttributeVisibleInUi(module, attrId)) return;
+
       if (currentStep === 'grouping') {
         setGrouping((prev) => {
           if (prev.includes(attrId)) {
@@ -173,7 +178,7 @@ export const useAttributeFilters = (props: UseAttributeFiltersProps) => {
         });
       }
     },
-    [currentStep],
+    [currentStep, currentModuleConfig.id],
   );
 
   // ─── ACTIVE FILTERS (Consolidated selections + exclusions) ───

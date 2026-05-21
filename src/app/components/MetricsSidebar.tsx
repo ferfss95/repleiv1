@@ -18,6 +18,10 @@ import {
   MetricCheckIconTooltip,
   MetricInfoIconTooltip,
 } from "./MetricOrientationTooltip";
+import {
+  filterMetricsVisibleInUi,
+  isMetricVisibleInUi,
+} from "../data/metricUiVisibility";
 
 function metricMatchesNormalizedQuery(metric: MetricDef, normQuery: string): boolean {
   if (!normQuery) return true;
@@ -74,10 +78,17 @@ export const MetricsSidebar = React.memo<MetricsSidebarProps>(function MetricsSi
     [isResultStep, resultMetricCatalog],
   );
 
+  const filterByUiVisibility = React.useCallback(
+    (metrics: MetricDef[]) => filterMetricsVisibleInUi(currentModule, metrics),
+    [currentModule],
+  );
+
   const filterByResultCatalog = React.useCallback(
-    (metrics: MetricDef[]) =>
-      resultCatalogSet ? metrics.filter((m) => resultCatalogSet.has(m.id)) : metrics,
-    [resultCatalogSet],
+    (metrics: MetricDef[]) => {
+      const visible = filterByUiVisibility(metrics);
+      return resultCatalogSet ? visible.filter((m) => resultCatalogSet.has(m.id)) : visible;
+    },
+    [resultCatalogSet, filterByUiVisibility],
   );
 
   const planningMetrics = currentModuleConfig.planningMetrics || [];
@@ -104,25 +115,26 @@ export const MetricsSidebar = React.memo<MetricsSidebarProps>(function MetricsSi
   const isLojaFlatMetrics = currentModule === "LOJA" || currentModule === "INDICADORES";
   const extraSidebarSections = currentModuleConfig.metricSidebarExtraSections || [];
 
-  /** Na etapa Resultado, oculta seções/grupos sem métricas no catálogo de preparação. */
+  /** Oculta métricas fora da planilha v.1; na etapa Resultado, só ids do catálogo de preparação. */
   const visibleExtraSidebarSections = React.useMemo(() => {
     return extraSidebarSections
       .map((section, sectionIdx) => {
         const groupId = section.sidebarGroupId ?? `metric_extra_${sectionIdx}`;
-        const groups =
-          isResultStep && resultCatalogSet
-            ? section.groups
-                .map((group) => ({
-                  ...group,
-                  metricIds: group.metricIds.filter((id) => resultCatalogSet.has(id)),
-                }))
-                .filter((group) => group.metricIds.length > 0)
-            : section.groups;
-        if (isResultStep && resultCatalogSet && groups.length === 0) return null;
+        const groups = section.groups
+          .map((group) => ({
+            ...group,
+            metricIds: group.metricIds.filter(
+              (id) =>
+                isMetricVisibleInUi(currentModule, id) &&
+                (!isResultStep || !resultCatalogSet || resultCatalogSet.has(id)),
+            ),
+          }))
+          .filter((group) => group.metricIds.length > 0);
+        if (groups.length === 0) return null;
         return { section, groupId, groups };
       })
       .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
-  }, [extraSidebarSections, isResultStep, resultCatalogSet]);
+  }, [extraSidebarSections, currentModule, isResultStep, resultCatalogSet]);
 
   const showVendaEstoqueAccordion =
     !isLojaFlatMetrics && (!isResultStep || vendaEstoqueMetrics.length > 0);
@@ -156,14 +168,23 @@ export const MetricsSidebar = React.memo<MetricsSidebarProps>(function MetricsSi
     const excludedFromVenda = new Set(
       currentModuleConfig.metricsSidebarExcludeFromVendaEstoque || [],
     );
-    const vendaMetrics = currentModuleConfig.metrics.filter(
-      (m) => !planningSet.has(m.id) && !excludedFromVenda.has(m.id),
+    const vendaMetrics = filterMetricsVisibleInUi(
+      currentModule,
+      currentModuleConfig.metrics.filter(
+        (m) => !planningSet.has(m.id) && !excludedFromVenda.has(m.id),
+      ),
     );
-    const planMetrics = currentModuleConfig.metrics.filter((m) => planningSet.has(m.id));
+    const planMetrics = filterMetricsVisibleInUi(
+      currentModule,
+      currentModuleConfig.metrics.filter((m) => planningSet.has(m.id)),
+    );
     const outrasIds = currentModuleConfig.metricsSidebarOutrasAfterPlanning || [];
-    const outrasMetrics = outrasIds
-      .map((id) => currentModuleConfig.metrics.find((m) => m.id === id))
-      .filter((m): m is MetricDef => Boolean(m));
+    const outrasMetrics = filterMetricsVisibleInUi(
+      currentModule,
+      outrasIds
+        .map((id) => currentModuleConfig.metrics.find((m) => m.id === id))
+        .filter((m): m is MetricDef => Boolean(m)),
+    );
     const hasPlanAccordion = planMetrics.length > 0 || outrasMetrics.length > 0;
     const extras = currentModuleConfig.metricSidebarExtraSections || [];
 
@@ -182,10 +203,12 @@ export const MetricsSidebar = React.memo<MetricsSidebarProps>(function MetricsSi
     extras.forEach((section, sectionIdx) => {
       const groupId = section.sidebarGroupId ?? `metric_extra_${sectionIdx}`;
       section.groups.forEach((group) => {
-        const metrics = group.metricIds
-          .map((id) => currentModuleConfig.metrics.find((m) => m.id === id))
-          .filter((m): m is MetricDef => Boolean(m))
-          .filter(match);
+        const metrics = filterMetricsVisibleInUi(
+          currentModule,
+          group.metricIds
+            .map((id) => currentModuleConfig.metrics.find((m) => m.id === id))
+            .filter((m): m is MetricDef => Boolean(m)),
+        ).filter(match);
         if (metrics.length > 0) {
           clusters.push({
             key: `${groupId}__${group.subtitle}`,
@@ -213,7 +236,7 @@ export const MetricsSidebar = React.memo<MetricsSidebarProps>(function MetricsSi
     }
 
     return clusters;
-  }, [normSearchQuery, currentModuleConfig, isLojaFlatMetrics]);
+  }, [normSearchQuery, currentModule, currentModuleConfig, isLojaFlatMetrics]);
 
   const renderMetricRow = (
     metric: Pick<MetricDef, "id" | "label" | "tooltip" | "orientation" | "formula">,
@@ -447,6 +470,9 @@ export const MetricsSidebar = React.memo<MetricsSidebarProps>(function MetricsSi
                                   </p>
                                   <div className="space-y-1.5">
                                     {group.metricIds.map((metricId) => {
+                                      if (!isMetricVisibleInUi(currentModule, metricId)) {
+                                        return null;
+                                      }
                                       const metric = currentModuleConfig.metrics.find(
                                         (m) => m.id === metricId,
                                       );

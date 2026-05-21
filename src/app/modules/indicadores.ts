@@ -2,7 +2,7 @@
 //
 // Módulo INDICADORES — KPIs operacionais de loja
 // Mecânica idêntica ao módulo LOJA.
-// Atributos: mesmos do LOJA (rede, tipo, estado, regional, cidade, loja, setor, vendedor).
+// Atributos: localização (rede, tipo, estado, regional, cidade, loja, setor, vendedor) — sem bloco Produto.
 // Métricas: KPIs com prefixo ind_ para evitar colisão com outros módulos.
 //
 // ── Guia de manutenção ───────────────────────────────────────
@@ -56,11 +56,6 @@ import {
   filterStoresByKnownLinks,
 } from '../referenceData';
 import type { ModuleConfig } from './types';
-import {
-  PRODUTO_DOMAIN_ATTRIBUTE_DEFS,
-  isProdutoDomainAttrId,
-  produtoModule,
-} from './produto';
 
 // ── Opções locais do módulo ───────────────────────────────────
 // Sufixo _IND para que, se o módulo LOJA divergir no futuro,
@@ -112,13 +107,6 @@ export const indicadoresModule: ModuleConfig = {
     { id: 'vendedor', label: 'VENDEDOR', icon: UserCircle, options: [] },
   ],
 
-  domainAttributeExtraRows: [
-    {
-      sectionLabel: 'Produto',
-      attributes: PRODUTO_DOMAIN_ATTRIBUTE_DEFS,
-    },
-  ],
-
   // ── Opções dinâmicas por atributo ────────────────────────
   getDomainAttributeOptions(attrId, selections) {
     switch (attrId) {
@@ -151,9 +139,6 @@ export const indicadoresModule: ModuleConfig = {
       case 'setor':    return SETOR_OPTIONS_IND;
       case 'vendedor': return VENDEDOR_OPTIONS_IND;
       default:
-        if (isProdutoDomainAttrId(attrId)) {
-          return produtoModule.getDomainAttributeOptions(attrId, selections);
-        }
         return [];
     }
   },
@@ -183,18 +168,6 @@ export const indicadoresModule: ModuleConfig = {
         });
         if (allowed.size > 0) result = result.filter(opt => allowed.has(opt));
       }
-    }
-
-    if (
-      isProdutoDomainAttrId(attrId) &&
-      produtoModule.getFilteredGroupOptions
-    ) {
-      result = produtoModule.getFilteredGroupOptions(
-        attrId,
-        result,
-        selections,
-        exclusions,
-      );
     }
 
     return result;

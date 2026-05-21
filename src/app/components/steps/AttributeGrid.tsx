@@ -11,6 +11,7 @@ import { ScrollableRow } from "../ScrollableRow";
 import { AttributeCard as SmartAttributeCard } from "../AttributeCard";
 import type { ModuleConfig } from "../../modules/types";
 import type { ModuleColors } from "../../constants/moduleColors";
+import { filterAttributesVisibleInUi } from "../../data/attributeUiVisibility";
 
 interface AttributeGridProps {
   currentStep: Step;
@@ -39,6 +40,15 @@ export const AttributeGrid = React.memo<AttributeGridProps>(function AttributeGr
   getAttributeOptions,
   handleAttributeClick,
 }: AttributeGridProps) {
+  const visibleDomainAttributes = filterAttributesVisibleInUi(
+    currentModule,
+    currentModuleConfig.domainAttributes,
+  );
+  const visibleLocationAttributes = filterAttributesVisibleInUi(
+    currentModule,
+    LOCATION_ATTRIBUTES,
+  );
+
   return (
     <div className="bg-white rounded-xl border border-[#D9D9D9] shadow-[0_1px_4px_rgba(0,0,0,0.06)] flex flex-col overflow-hidden shrink-0">
       {/* Header */}
@@ -81,7 +91,7 @@ export const AttributeGrid = React.memo<AttributeGridProps>(function AttributeGr
               </div>
             )}
             <ScrollableRow>
-              {currentModuleConfig.domainAttributes.map((attr) => (
+              {visibleDomainAttributes.map((attr) => (
                 <SmartAttributeCard
                   key={attr.id}
                   attribute={{ ...attr, options: getAttributeOptions(attr.id) }}
@@ -119,7 +129,7 @@ export const AttributeGrid = React.memo<AttributeGridProps>(function AttributeGr
                   <div className="h-px flex-1 bg-slate-200" />
                 </div>
                 <ScrollableRow>
-                  {row.attributes.map((attr) => (
+                  {filterAttributesVisibleInUi(currentModule, row.attributes).map((attr) => (
                     <SmartAttributeCard
                       key={attr.id}
                       attribute={{ ...attr, options: getAttributeOptions(attr.id) }}
@@ -159,7 +169,7 @@ export const AttributeGrid = React.memo<AttributeGridProps>(function AttributeGr
                 <div className="h-px flex-1 bg-slate-200" />
               </div>
               <ScrollableRow>
-                {LOCATION_ATTRIBUTES.map((attr) => (
+                {visibleLocationAttributes.map((attr) => (
                   <SmartAttributeCard
                     key={attr.id}
                     attribute={{ ...attr, options: getAttributeOptions(attr.id) }}

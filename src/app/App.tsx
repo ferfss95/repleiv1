@@ -33,6 +33,9 @@ import {
 } from "./hooks/useModuleNavigator";
 import { useAttributeFilters } from "./hooks/useAttributeFilters";
 import type { AnalysisMode, AveragePeriodType } from "./types/wizard";
+import { isMetricVisibleInUi } from "./data/metricUiVisibility";
+import { isAttributeVisibleInUi } from "./data/attributeUiVisibility";
+import { isAnalysisModeVisibleInUi } from "./data/analysisModeUiVisibility";
 
 /** Defaults do accordion de métricas (alinhado a MetricsSidebar). Em PRODUTO só "Venda e Estoque" vem aberto. */
 function getMetricsSidebarDefaultsForModule(module: Module): Record<string, boolean> {
@@ -143,12 +146,53 @@ export default function App() {
     previousModuleRef.current = currentModule;
   }, [currentModule, setSelections, setExclusions, setGrouping, setCurrentStep]);
 
-  // Proteção extra: remove métricas inválidas ao trocar de módulo (default = nenhuma selecionada).
+  // Proteção extra: remove métricas inválidas ou ocultas (fora da planilha v.1) ao trocar de módulo.
   React.useEffect(() => {
     const validMetricIds = new Set(currentModuleConfig.metrics.map((metric) => metric.id));
 
-    setSelectedMetrics((prev) => prev.filter((metricId) => validMetricIds.has(metricId)));
-  }, [currentModuleConfig, setSelectedMetrics]);
+    setSelectedMetrics((prev) =>
+      prev.filter(
+        (metricId) =>
+          validMetricIds.has(metricId) && isMetricVisibleInUi(currentModule, metricId),
+      ),
+    );
+    setResultMetricCatalog((catalog) =>
+      catalog.filter(
+        (metricId) =>
+          validMetricIds.has(metricId) && isMetricVisibleInUi(currentModule, metricId),
+      ),
+    );
+  }, [currentModule, currentModuleConfig, setSelectedMetrics]);
+
+  // Remove seleções/agrupamentos/exclusões de atributos ocultos (fora da planilha v.1).
+  React.useEffect(() => {
+    const pruneRecord = (record: Record<string, string[]>) => {
+      let changed = false;
+      const next: Record<string, string[]> = {};
+      for (const [key, vals] of Object.entries(record)) {
+        if (!isAttributeVisibleInUi(currentModule, key)) {
+          changed = true;
+          continue;
+        }
+        next[key] = vals;
+      }
+      return changed ? next : record;
+    };
+
+    setSelections((prev) => pruneRecord(prev));
+    setExclusions((prev) => pruneRecord(prev));
+    setGrouping((prev) => {
+      const next = prev.filter((id) => isAttributeVisibleInUi(currentModule, id));
+      return next.length === prev.length ? prev : next;
+    });
+  }, [currentModule, setSelections, setExclusions, setGrouping]);
+
+  // Força modo «Geral» se estado legado tiver evolutiva/comparativa/intraday.
+  React.useEffect(() => {
+    if (!isAnalysisModeVisibleInUi(analysisMode)) {
+      setAnalysisMode("padrao");
+    }
+  }, [analysisMode]);
 
   // ─── Derived State ─────────────────────────────────────────────
   const isTimeDrilldownEnabled = analysisMode === "evolucao";
@@ -207,7 +251,7 @@ export default function App() {
 
   const toggleMetric = (metricId: string) => {
     const metricExistsInModule = currentModuleConfig.metrics.some((metric) => metric.id === metricId);
-    if (!metricExistsInModule) return;
+    if (!metricExistsInModule || !isMetricVisibleInUi(currentModule, metricId)) return;
 
     if (currentStep === "analysis") {
       if (!resultMetricCatalog.includes(metricId)) return;
@@ -230,6 +274,8 @@ export default function App() {
   };
 
   const handleAnalysisModeChange = (mode: AnalysisMode) => {
+    if (!isAnalysisModeVisibleInUi(mode)) return;
+
     setAnalysisMode(mode);
 
     // Intraday sempre parte do dia corrente por padrão.

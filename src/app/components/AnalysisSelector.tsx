@@ -3,6 +3,7 @@ import { ChevronDown, BarChart3, TrendingUp, ArrowLeftRight, Clock, Check } from
 import * as Popover from '@radix-ui/react-popover';
 import { cn } from '../utils';
 import type { AnalysisMode } from '../types/wizard';
+import { isAnalysisModeVisibleInUi } from '../data/analysisModeUiVisibility';
 
 interface AnalysisOption {
   id: AnalysisMode;
@@ -28,12 +29,39 @@ const ALL_ANALYSIS_OPTIONS: AnalysisOption[] = [
 export function AnalysisSelector({ value, onChange, supportsHoraAHora, disabled = false }: AnalysisSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Filter options based on module support
-  const availableOptions = ALL_ANALYSIS_OPTIONS.filter(opt => 
-    opt.id !== 'horaahora' || supportsHoraAHora
+  // UI: só «Geral»; intraday extra filtrado por módulo permanece no código para reativação.
+  const availableOptions = ALL_ANALYSIS_OPTIONS.filter(
+    (opt) =>
+      isAnalysisModeVisibleInUi(opt.id) &&
+      (opt.id !== 'horaahora' || supportsHoraAHora),
   );
 
-  const selectedOption = availableOptions.find(opt => opt.id === value) || availableOptions[0];
+  const selectedOption =
+    availableOptions.find((opt) => opt.id === value) || availableOptions[0];
+
+  if (availableOptions.length === 1) {
+    const only = availableOptions[0];
+    return (
+      <button
+        type="button"
+        disabled
+        className={cn(
+          'w-full h-[52px] px-3.5 flex items-center justify-between rounded-lg border transition-all',
+          'bg-slate-50 text-[13px] font-medium text-[#314158] border-slate-200 cursor-default opacity-90',
+        )}
+      >
+        <div className="flex flex-col items-start gap-0.5 min-w-0">
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-[#90A1B9]">
+            Tipo de Análise
+          </span>
+          <div className="flex items-center gap-2">
+            <only.Icon size={14} className="text-[#314158] shrink-0" strokeWidth={1.5} />
+            <span className="text-[13px] font-medium text-[#314158] truncate">{only.label}</span>
+          </div>
+        </div>
+      </button>
+    );
+  }
 
   return (
     <Popover.Root open={isOpen} onOpenChange={setIsOpen}>

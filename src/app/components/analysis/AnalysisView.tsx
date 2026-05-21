@@ -122,6 +122,7 @@ import {
   isComparativoPeriodOne,
 } from "../../constants/labels";
 import { getMetricSidebarLabel, getMetricTableLabel } from "../../data/metricNaming";
+import { SHOW_ANALYSIS_RESULT_TOOLBAR } from "../../data/analysisResultToolbarVisibility";
 import { MetricColumnHeaderTooltip } from "../MetricOrientationTooltip";
 
 // ══════════════════════════════════════════════════════════════════
@@ -298,6 +299,22 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
   >("bar");
   const [chartDropdownOpen, setChartDropdownOpen] =
     useState(false);
+
+  React.useEffect(() => {
+    if (!SHOW_ANALYSIS_RESULT_TOOLBAR) {
+      setShowSharePct(false);
+      setAveragePeriodType(null);
+      setAverageDropdownOpen(false);
+      setShowChartSection(false);
+      setChartDropdownOpen(false);
+    }
+  }, [
+    setShowSharePct,
+    setAveragePeriodType,
+    setAverageDropdownOpen,
+    setShowChartSection,
+    setChartDropdownOpen,
+  ]);
 
   // Chart & Table visibility state
   const [showChart, setShowChart] = useState(true);
@@ -4169,6 +4186,10 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
 
         {/* Actions: portados para o SecondaryHeader quando disponível, inline como fallback */}
         {(() => {
+          if (!SHOW_ANALYSIS_RESULT_TOOLBAR) {
+            return null;
+          }
+
           const actionsJSX = (
             <div className="flex items-center gap-2 shrink-0">
             {/* Add % share button */}
@@ -6411,7 +6432,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
               )}
               <div
                 ref={scrollContainerRef}
-                className="relative flex min-h-0 flex-1 flex-col overflow-x-auto overflow-y-auto"
+                className="relative flex min-h-0 flex-1 flex-col items-start overflow-x-auto overflow-y-auto"
               >
                 <TableHatchSurface>
                 {/* ─── PIVOT TABLE ─── */}

@@ -31,6 +31,7 @@ import {
   sanitizeSpecificDaysForAnalysisMode,
   sanitizeYearsForAnalysisMode,
 } from '../utils/dateSelectionRules';
+import { SHOW_DIAS_DA_SEMANA_PERIOD_UI } from '../data/periodSelectionUiVisibility';
 
 interface UseDateRangeProps {
   analysisMode: AnalysisMode;
@@ -135,6 +136,13 @@ export const useDateRange = ({ analysisMode }: UseDateRangeProps) => {
 
   // Auto-scroll ref for P2 months
   const monthsP2ScrollRef = useRef<HTMLDivElement>(null);
+
+  // UI: só «Dias Corridos» — força intervalo se estado legado estiver em dias da semana.
+  useEffect(() => {
+    if (!SHOW_DIAS_DA_SEMANA_PERIOD_UI && dailySubType === 'diasdasemana') {
+      setDailySubType('periodo');
+    }
+  }, [dailySubType]);
 
   // ─── Apply defaults when periodType changes ───
   useEffect(() => {
