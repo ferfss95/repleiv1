@@ -1,9 +1,13 @@
-/** Rede fixa na v.1: exibe logo Centauro, sem interação na UI. */
+/** Rede v.1: única opção na UI, sempre selecionada e não removível. */
 export const REDE_LOCKED_NETWORK = 'Centauro' as const;
 
-/** Tooltip ao passar o mouse no botão informativo de REDE. */
-export const REDE_HOVER_TOOLTIP = 'Rede';
+export const REDE_UI_OPTIONS: readonly string[] = [REDE_LOCKED_NETWORK];
 
-export function isRedeStaticDisplayAttribute(attrId: string): boolean {
+export function isRedeLockedAttribute(attrId: string): boolean {
   return attrId === 'rede';
+}
+
+/** Garante seleção fixa em Centauro (ignora limpar / desmarcar). */
+export function sanitizeRedeSelection(values: string[]): string[] {
+  return [REDE_LOCKED_NETWORK];
 }

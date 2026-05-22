@@ -11,8 +11,10 @@ import {
   CANAL_GROUP_CENTAURO_IDS,
   CANAL_GROUP_NIKE_IDS,
 } from "../referenceData";
-import { isRedeStaticDisplayAttribute } from "../data/attributeUiConfig";
-import { RedeAttributeButton } from "./RedeAttributeButton";
+import {
+  isRedeLockedAttribute,
+  REDE_LOCKED_NETWORK,
+} from "../data/attributeUiConfig";
 
 /** Paleta neutra — default / hover / desativado agrupamento */
 const NEUTRAL_TEXT = "#808080";
@@ -99,11 +101,17 @@ export function AttributeCard({
       .filter((g) => g.options.length > 0);
   }, [attribute.id, searchTerm]);
 
-  if (isRedeStaticDisplayAttribute(attribute.id)) {
-    return <RedeAttributeButton />;
-  }
+  const isRedeLocked = isRedeLockedAttribute(attribute.id);
 
   const handleToggleOption = (value: string, isSelection: boolean) => {
+    if (isRedeLocked) {
+      if (!isSelection) return;
+      if (value === REDE_LOCKED_NETWORK) {
+        onUpdateSelection([REDE_LOCKED_NETWORK]);
+      }
+      return;
+    }
+
     const currentList = isSelection ? currentSelection : currentExclusion;
     const updateFn = isSelection ? onUpdateSelection : onUpdateExclusion;
 
@@ -115,6 +123,7 @@ export function AttributeCard({
   };
 
   const handleClear = (isSelection: boolean) => {
+    if (isRedeLocked && isSelection) return;
     if (isSelection) onUpdateSelection([]);
     else onUpdateExclusion([]);
   };
@@ -248,7 +257,10 @@ export function AttributeCard({
     (step === "selection" && selectionCount > 0) ||
     (step === "exclusion" && exclusionCount > 0);
   const isSelected2 = step === "grouping" && isGrouped;
-  const isGroupingDisabled = step === "grouping" && groupingLimitReached && !isGrouped;
+  const isGroupingDisabled =
+    step === "grouping" &&
+    (groupingLimitReached || isRedeLocked) &&
+    !isGrouped;
 
   const showHoverChrome =
     (isHover || isOpen) && !isGroupingDisabled;
@@ -404,10 +416,16 @@ export function AttributeCard({
 
   const renderOptionRow = (opt: string) => {
     const isChecked = currentValues.includes(opt);
+    const redeLockedChecked =
+      isRedeLocked &&
+      isSelectionMode &&
+      opt === REDE_LOCKED_NETWORK &&
+      isChecked;
     return (
       <button
         type="button"
         onClick={() => handleToggleOption(opt, isSelectionMode)}
+        disabled={redeLockedChecked}
         className={cn(
           "group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-all",
           !isChecked && "text-slate-600 hover:bg-slate-50",
@@ -473,7 +491,7 @@ export function AttributeCard({
               {isSelectionMode ? "Filtrar" : "Excluir"} {attribute.label}
             </span>
           </div>
-          {count > 0 && (
+          {count > 0 && !(isRedeLocked && isSelectionMode) && (
             <button
               type="button"
               onClick={() => handleClear(isSelectionMode)}

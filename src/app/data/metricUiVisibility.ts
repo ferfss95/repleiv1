@@ -11,6 +11,7 @@ export const METRIC_UI_VISIBLE_BY_MODULE: Record<Module, ReadonlySet<string>> = 
     'lucro_bruto',
     'margem',
     'qtd_estoque',
+    'dep',
   ]),
   LOJA: new Set([
     'rob',
@@ -18,6 +19,8 @@ export const METRIC_UI_VISIBLE_BY_MODULE: Record<Module, ReadonlySet<string>> = 
     'valor_meta',
     'desvio_meta_r',
     'desvio_meta_p',
+    'margem_bruta',
+    'sss',
   ]),
   INDICADORES: new Set([
     'ind_tkm',
@@ -26,6 +29,7 @@ export const METRIC_UI_VISIBLE_BY_MODULE: Record<Module, ReadonlySet<string>> = 
     'ind_ipc',
     'ind_paridade',
     'ind_cupons_mistos',
+    'ind_fluxo',
   ]),
   /** Mesmo recorte de PRODUTO (módulo placeholder sem exposição). */
   EXTRAVIOS: new Set([

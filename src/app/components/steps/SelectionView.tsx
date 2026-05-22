@@ -221,9 +221,25 @@ export const SelectionView = React.memo<SelectionViewProps>(function SelectionVi
                                 </h3>
                               </div>
     
-                              {/* Tabs container - apenas para Diário */}
+                              {/* Aba Diário (intervalo) — alinhada a Mês/Ano */}
                               {periodType === "Diário" &&
-                                (SHOW_DIAS_DA_SEMANA_PERIOD_UI ? (
+                                !SHOW_DIAS_DA_SEMANA_PERIOD_UI && (
+                                  <div className="flex items-center gap-6 border-b border-[#e2e8f0] shrink-0">
+                                    <div className="flex items-center gap-2 pb-2 border-b-2 border-[#314158]">
+                                      <CalendarRange
+                                        size={14}
+                                        className="text-[#314158]"
+                                      />
+                                      <span className="text-[13px] font-medium text-[#314158]">
+                                        Selecionar dia
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
+
+                              {/* Abas Diário: «Dias Corridos» / «Dias da Semana» (quando habilitado) */}
+                              {periodType === "Diário" &&
+                                SHOW_DIAS_DA_SEMANA_PERIOD_UI && (
                                   <div className="flex items-center gap-6 border-b border-[#e2e8f0] shrink-0">
                                     <button
                                       onClick={() =>
@@ -262,17 +278,7 @@ export const SelectionView = React.memo<SelectionViewProps>(function SelectionVi
                                       Dias da Semana
                                     </button>
                                   </div>
-                                ) : (
-                                  <div className="flex items-center gap-2 pb-2 border-b-2 border-[#314158] shrink-0">
-                                    <CalendarRange
-                                      size={14}
-                                      className="text-[#314158]"
-                                    />
-                                    <span className="text-[13px] font-medium text-[#314158]">
-                                      Dias Corridos
-                                    </span>
-                                  </div>
-                                ))}
+                                )}
     
                               {/* Tabs para Mensal */}
                               {periodType === "Mensal" && (
@@ -429,36 +435,29 @@ export const SelectionView = React.memo<SelectionViewProps>(function SelectionVi
                                       (SHOW_DIAS_DA_SEMANA_PERIOD_UI
                                         ? dailySubType === "periodo"
                                         : true) && (
-                                        <div className="flex flex-col gap-3 h-full w-[320px] shrink-0 mt-[14px]">
-                                          <DateRangePicker
-                                            analysisMode={analysisMode}
-                                            startDate={
-                                              dateRange.start
-                                            }
-                                            endDate={dateRange.end}
-                                            onStartChange={(v) =>
-                                              isPeriodEditable &&
-                                              setDateRange(
-                                                (prev) => ({
+                                        <div className="flex flex-col h-full min-h-0 flex-1 min-w-0">
+                                          <div className="flex flex-1 min-h-0 w-[320px] shrink-0 flex-col items-start border border-[#e2e8f0] rounded-lg p-3">
+                                            <DateRangePicker
+                                              analysisMode={analysisMode}
+                                              startDate={dateRange.start}
+                                              endDate={dateRange.end}
+                                              onStartChange={(v) =>
+                                                isPeriodEditable &&
+                                                setDateRange((prev) => ({
                                                   ...prev,
                                                   start: v,
-                                                }),
-                                              )
-                                            }
-                                            onEndChange={(v) =>
-                                              isPeriodEditable &&
-                                              setDateRange(
-                                                (prev) => ({
+                                                }))
+                                              }
+                                              onEndChange={(v) =>
+                                                isPeriodEditable &&
+                                                setDateRange((prev) => ({
                                                   ...prev,
                                                   end: v,
-                                                }),
-                                              )
-                                            }
-                                            disabled={
-                                              !isPeriodEditable
-                                            }
-                                          />
-                                          <div className="flex-1" />
+                                                }))
+                                              }
+                                              disabled={!isPeriodEditable}
+                                            />
+                                          </div>
                                         </div>
                                       )}
     

@@ -12,6 +12,10 @@ import { AttributeCard as SmartAttributeCard } from "../AttributeCard";
 import type { ModuleConfig } from "../../modules/types";
 import type { ModuleColors } from "../../constants/moduleColors";
 import { filterAttributesVisibleInUi } from "../../data/attributeUiVisibility";
+import {
+  isRedeLockedAttribute,
+  sanitizeRedeSelection,
+} from "../../data/attributeUiConfig";
 
 interface AttributeGridProps {
   currentStep: Step;
@@ -107,7 +111,12 @@ export const AttributeGrid = React.memo<AttributeGridProps>(function AttributeGr
                   exclusionCount={exclusions[attr.id]?.length || 0}
                   onToggleGroup={() => handleAttributeClick(attr.id)}
                   onUpdateSelection={(vals) =>
-                    setSelections((prev) => ({ ...prev, [attr.id]: vals }))
+                    setSelections((prev) => ({
+                      ...prev,
+                      [attr.id]: isRedeLockedAttribute(attr.id)
+                        ? sanitizeRedeSelection(vals)
+                        : vals,
+                    }))
                   }
                   onUpdateExclusion={(vals) =>
                     setExclusions((prev) => ({ ...prev, [attr.id]: vals }))
@@ -145,7 +154,12 @@ export const AttributeGrid = React.memo<AttributeGridProps>(function AttributeGr
                       exclusionCount={exclusions[attr.id]?.length || 0}
                       onToggleGroup={() => handleAttributeClick(attr.id)}
                       onUpdateSelection={(vals) =>
-                        setSelections((prev) => ({ ...prev, [attr.id]: vals }))
+                        setSelections((prev) => ({
+                          ...prev,
+                          [attr.id]: isRedeLockedAttribute(attr.id)
+                            ? sanitizeRedeSelection(vals)
+                            : vals,
+                        }))
                       }
                       onUpdateExclusion={(vals) =>
                         setExclusions((prev) => ({ ...prev, [attr.id]: vals }))
@@ -185,7 +199,12 @@ export const AttributeGrid = React.memo<AttributeGridProps>(function AttributeGr
                     exclusionCount={exclusions[attr.id]?.length || 0}
                     onToggleGroup={() => handleAttributeClick(attr.id)}
                     onUpdateSelection={(vals) =>
-                      setSelections((prev) => ({ ...prev, [attr.id]: vals }))
+                      setSelections((prev) => ({
+                        ...prev,
+                        [attr.id]: isRedeLockedAttribute(attr.id)
+                          ? sanitizeRedeSelection(vals)
+                          : vals,
+                      }))
                     }
                     onUpdateExclusion={(vals) =>
                       setExclusions((prev) => ({ ...prev, [attr.id]: vals }))

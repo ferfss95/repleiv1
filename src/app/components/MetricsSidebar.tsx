@@ -303,7 +303,7 @@ export const MetricsSidebar = React.memo<MetricsSidebarProps>(function MetricsSi
       <div
         className={cn(
           "flex-none",
-          metricsCollapsed ? "px-2 pt-4 pb-3" : "px-5 pt-5 pb-4",
+          metricsCollapsed ? "px-2 pt-4 pb-3" : "px-6 pt-5 pb-4",
         )}
       >
         <div className="flex items-center justify-between gap-2">
@@ -336,7 +336,7 @@ export const MetricsSidebar = React.memo<MetricsSidebarProps>(function MetricsSi
       </div>
 
       {!metricsCollapsed && (
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-5 pb-5">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-6 pb-5">
           {!isResultStep ? (
           <div className="shrink-0 bg-white pb-3 pt-0">
             <div className="relative">
@@ -358,8 +358,9 @@ export const MetricsSidebar = React.memo<MetricsSidebarProps>(function MetricsSi
             </div>
           </div>
           ) : null}
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="space-y-4">
+          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+            {/* px-2: folga para box-shadow/anel de hover (3px) não ser cortado nas bordas */}
+            <div className="space-y-4 px-2 py-1">
               {isSearchMode ? (
                 searchClusters.length === 0 ? (
                   <p className="px-1 py-10 text-center text-[13px] leading-relaxed text-slate-500">

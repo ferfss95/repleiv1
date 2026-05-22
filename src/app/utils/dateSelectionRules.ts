@@ -1,4 +1,5 @@
 import type { AnalysisMode } from '../types/wizard';
+import { ALLOW_CURRENT_YEAR_ANNUAL_SELECTION } from '../data/periodSelectionUiVisibility';
 import {
   getPeriodSelectionMinDate,
   isBeforePeriodSelectionMinDate,
@@ -57,6 +58,7 @@ export function isMonthPeriodBlocked(month: string, analysisMode: AnalysisMode):
 
 export function isYearPeriodBlocked(year: string, analysisMode: AnalysisMode): boolean {
   if (isIntradayAnalysisMode(analysisMode)) return false;
+  if (ALLOW_CURRENT_YEAR_ANNUAL_SELECTION) return false;
   return year === getCurrentYearString();
 }
 
@@ -147,6 +149,7 @@ export function sanitizeYearsForAnalysisMode(
   return years.filter((year) => {
     if (isYearBeforePeriodSelectionMin(year)) return false;
     if (isIntradayAnalysisMode(analysisMode)) return true;
+    if (ALLOW_CURRENT_YEAR_ANNUAL_SELECTION) return true;
     return year !== getCurrentYearString();
   });
 }

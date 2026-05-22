@@ -106,7 +106,10 @@ import {
   collectAllDomainAttributes,
   type ModuleConfig,
 } from "../../modules/types";
-import type { ModuleColors } from "../../constants/moduleColors";
+import {
+  NEUTRAL_PALETTE,
+  type ModuleColors,
+} from "../../constants/moduleColors";
 import type { AnalysisMode, AveragePeriodType } from "../../types/wizard";
 import {
   ANALYSIS_TABLE_CLASS,
@@ -115,6 +118,17 @@ import {
   getTableModuleTheme,
 } from "../../constants/tableModuleTheme";
 import { TableHatchSurface } from "./tableHatchCells";
+import {
+  stickyPivotHeaderCornerStyle,
+  stickyPivotHeaderRow1Style,
+  stickyPivotHeaderRow2Style,
+  stickyPivotTotalCellStyle,
+  stickyPivotTotalCornerStyle,
+  stickyStdHeaderCellStyle,
+  stickyStdHeaderCornerStyle,
+  stickyStdTotalCellStyle,
+  stickyStdTotalCornerStyle,
+} from "./analysisTableStickyLayout";
 import {
   COMPARATIVO_PERIOD_LABELS,
   getComparativoPeriodLabel,
@@ -6433,6 +6447,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
               <div
                 ref={scrollContainerRef}
                 className="relative flex min-h-0 flex-1 flex-col items-start overflow-x-auto overflow-y-auto"
+                style={{ backgroundColor: NEUTRAL_PALETTE.background }}
               >
                 <TableHatchSurface>
                 {/* ─── PIVOT TABLE ─── */}
@@ -6645,7 +6660,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                             })}
                     </colgroup>
 
-                    <thead className="sticky top-0 z-[40]">
+                    <thead className="z-[40]">
                       {/* HEADER ROW 1: Metric groups (metric-first pivot) */}
                       <tr>
                         <th
@@ -6665,8 +6680,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                             borderRightStyle: "solid",
                             boxShadow:
                               "1px 0 0 0 rgba(148,163,184,0.18), 6px 0 16px -4px rgba(0,0,0,0.08), 2px 0 6px -2px rgba(0,0,0,0.05)",
+                            ...stickyPivotHeaderCornerStyle(),
                           }}
-                          className="relative px-4 py-2.5 text-left text-xs font-bold uppercase tracking-wider sticky left-0 top-0 z-[50] select-none align-middle"
+                          className="relative px-4 py-2.5 text-left text-xs font-bold uppercase tracking-wider select-none"
                         >
                           <div
                             className="group flex cursor-pointer items-center gap-2 overflow-hidden pr-1 transition-colors hover:opacity-90"
@@ -6727,6 +6743,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                           "solid",
                                         borderBottomColor:
                                           "rgba(241, 241, 241, 0.25)",
+                                        ...stickyPivotHeaderRow1Style(),
                                         ...(!isLastMetric
                                           ? {
                                               borderRightWidth: 2,
@@ -6762,6 +6779,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                     borderBottomStyle: "solid",
                                     borderBottomColor:
                                       "rgba(241, 241, 241, 0.25)",
+                                    ...stickyPivotHeaderRow1Style(),
                                     ...(!isLastPeriod
                                       ? {
                                           borderRightWidth: 2,
@@ -6786,6 +6804,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                 borderBottomStyle: "solid",
                                 borderBottomColor:
                                   "rgba(241, 241, 241, 0.25)",
+                                ...stickyPivotHeaderRow1Style(),
                               }}
                             >
                               Total
@@ -6825,6 +6844,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                       className="px-2 py-2 text-right font-bold uppercase tracking-wider select-none whitespace-nowrap text-[12px] cursor-pointer group hover:brightness-95 transition-colors"
                                       onClick={() => handleSort(periodSortKey)}
                                       style={{
+                                        ...stickyPivotHeaderRow2Style(),
                                         backgroundColor:
                                           PIVOT_DERIVED_HEADER_BG,
                                         color:
@@ -6923,6 +6943,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                         key={`${mId}__p${pIdx}__avg`}
                                         className="px-2 py-2 text-right font-bold uppercase tracking-wider select-none whitespace-nowrap text-[11px]"
                                         style={{
+                                          ...stickyPivotHeaderRow2Style(),
                                           backgroundColor:
                                             PIVOT_DERIVED_HEADER_BG,
                                           color:
@@ -6959,6 +6980,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                         key={`${mId}__p${pIdx}__pct`}
                                         className="px-2 py-2 text-center font-bold uppercase tracking-wider select-none whitespace-nowrap text-[12px]"
                                         style={{
+                                          ...stickyPivotHeaderRow2Style(),
                                           backgroundColor:
                                             PIVOT_DERIVED_HEADER_BG,
                                           color:
@@ -7010,6 +7032,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                     className="px-2 py-2 text-right font-bold uppercase tracking-wider select-none whitespace-nowrap text-[12px] cursor-pointer group hover:brightness-95 transition-colors"
                                     onClick={() => handleSort(variationValueSortKey)}
                                     style={{
+                                      ...stickyPivotHeaderRow2Style(),
                                       backgroundColor:
                                         PIVOT_DERIVED_HEADER_BG,
                                       color:
@@ -7047,6 +7070,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                     )}
                                     onClick={() => handleSort(variationPctSortKey)}
                                     style={{
+                                      ...stickyPivotHeaderRow2Style(),
                                       backgroundColor:
                                         PIVOT_DERIVED_HEADER_BG,
                                       color:
@@ -7099,6 +7123,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                       className="px-2 pr-3 py-2 text-right font-bold uppercase tracking-wider select-none whitespace-nowrap text-[12px] cursor-pointer group hover:brightness-95 transition-colors"
                                       onClick={() => handleSort(periodSortKey)}
                                       style={{
+                                        ...stickyPivotHeaderRow2Style(),
                                         backgroundColor:
                                           PIVOT_DERIVED_HEADER_BG,
                                         color:
@@ -7141,6 +7166,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                         key={`${mId}__${period}__avg`}
                                         className="px-2 py-2 text-right font-bold uppercase tracking-wider select-none whitespace-nowrap text-[11px]"
                                         style={{
+                                          ...stickyPivotHeaderRow2Style(),
                                           backgroundColor:
                                             PIVOT_DERIVED_HEADER_BG,
                                           color:
@@ -7176,6 +7202,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                         key={`${mId}__${period}__pct`}
                                         className="px-2 py-2 text-center font-bold uppercase tracking-wider select-none whitespace-nowrap text-[12px]"
                                         style={{
+                                          ...stickyPivotHeaderRow2Style(),
                                           backgroundColor:
                                             PIVOT_DERIVED_HEADER_BG,
                                           color:
@@ -7355,6 +7382,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                         handleSort(periodSortKey)
                                       }
                                       style={{
+                                        ...stickyPivotHeaderRow2Style(),
                                         backgroundColor:
                                           PIVOT_DERIVED_HEADER_BG,
                                         color:
@@ -7395,6 +7423,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                         key={`pf2a_${period}_${mId}`}
                                         className="px-2 py-2 text-right font-bold uppercase tracking-wider select-none whitespace-nowrap text-[11px]"
                                         style={{
+                                          ...stickyPivotHeaderRow2Style(),
                                           backgroundColor:
                                             PIVOT_DERIVED_HEADER_BG,
                                           color:
@@ -7426,6 +7455,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                         key={`pf2p_${period}_${mId}`}
                                         className="px-2 py-2 text-center font-bold uppercase tracking-wider select-none whitespace-nowrap text-[12px]"
                                         style={{
+                                          ...stickyPivotHeaderRow2Style(),
                                           backgroundColor:
                                             PIVOT_DERIVED_HEADER_BG,
                                           color:
@@ -7568,6 +7598,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                             style={{
                               width:
                                 columnWidths["grouping"] || 350,
+                              ...stickyPivotTotalCornerStyle(),
                               ...bc("#e2e8f0"),
                               backgroundColor: "#f8fafc",
                               borderBottomWidth: 2,
@@ -7578,7 +7609,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                               boxShadow:
                                 "1px 0 0 0 rgba(148,163,184,0.18), 6px 0 16px -4px rgba(0,0,0,0.08), 2px 0 6px -2px rgba(0,0,0,0.05)",
                             }}
-                            className="h-[46px] px-4 py-2.5 sticky left-0 top-[75px] z-[45] overflow-hidden text-ellipsis whitespace-nowrap text-[13px] uppercase tracking-wide"
+                            className="px-4 py-2.5 z-[45] overflow-hidden text-ellipsis whitespace-nowrap text-[13px] uppercase tracking-wide"
                           >
                             Total
                           </td>
@@ -7608,8 +7639,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                   cells.push(
                                     <td
                                       key={key}
-                                      className="h-[46px] px-2 pr-3 py-2.5 text-right sticky top-[75px] z-[30] text-[13px] bg-slate-50 whitespace-nowrap"
+                                      className="px-2 pr-3 py-2.5 text-right z-[30] text-[13px] bg-slate-50 whitespace-nowrap"
                                       style={{
+                                        ...stickyPivotTotalCellStyle(),
                                         width:
                                           getPivotMetricWidth(
                                             mId,
@@ -7717,8 +7749,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                     cells.push(
                                       <td
                                         key={`${key}__avg`}
-                                        className="h-[46px] px-2 pr-3 py-2.5 text-right sticky top-[75px] z-[30] text-[12px] text-slate-600 bg-slate-50 whitespace-nowrap"
+                                        className="h-[46px] px-2 pr-3 py-2.5 text-right z-[30] text-[12px] text-slate-600 bg-slate-50 whitespace-nowrap"
                                         style={{
+                                          ...stickyPivotTotalCellStyle(),
                                           width: AVG_COL_WIDTH,
                                           borderBottomWidth: 2,
                                           borderBottomStyle:
@@ -7749,8 +7782,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                     cells.push(
                                       <td
                                         key={`${key}__pct`}
-                                        className="h-[46px] px-2 py-2.5 text-center sticky top-[75px] z-[30] text-[12px] text-slate-500 bg-slate-50"
+                                        className="h-[46px] px-2 py-2.5 text-center z-[30] text-[12px] text-slate-500 bg-slate-50"
                                         style={{
+                                          ...stickyPivotTotalCellStyle(),
                                           width: PCT_COL_WIDTH,
                                           borderBottomWidth: 2,
                                           borderBottomStyle:
@@ -7793,10 +7827,11 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                   <td
                                     key={`__diff__${mId}`}
                                     className={cn(
-                                      "h-[46px] px-2 pr-3 py-2.5 whitespace-nowrap text-right text-[13px] sticky top-[75px] z-[30] bg-slate-50",
+                                      "h-[46px] px-2 pr-3 py-2.5 whitespace-nowrap text-right text-[13px] z-[30] bg-slate-50",
                                       fv.color,
                                     )}
                                     style={{
+                                      ...stickyPivotTotalCellStyle(),
                                       width:
                                         getPivotMetricWidth(
                                           mId,
@@ -7841,10 +7876,11 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                   <td
                                     key={`__growth__${mId}`}
                                     className={cn(
-                                      "h-[46px] px-2 pr-3 py-2.5 whitespace-nowrap text-right text-[13px] sticky top-[75px] z-[30] bg-slate-50",
+                                      "h-[46px] px-2 pr-3 py-2.5 whitespace-nowrap text-right text-[13px] z-[30] bg-slate-50",
                                       fg.color,
                                     )}
                                     style={{
+                                      ...stickyPivotTotalCellStyle(),
                                       width:
                                         getPivotMetricWidth(
                                           mId,
@@ -7900,8 +7936,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                 cells.push(
                                   <td
                                     key={totalKey}
-                                    className="h-[46px] px-2 pr-3 py-2.5 text-right sticky top-[75px] z-[30] text-[13px] whitespace-nowrap"
+                                    className="h-[46px] px-2 pr-3 py-2.5 text-right z-[30] text-[13px] whitespace-nowrap"
                                     style={{
+                                      ...stickyPivotTotalCellStyle(),
                                       backgroundColor:
                                         totalColumnBg,
                                       width:
@@ -8007,8 +8044,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                   cells.push(
                                     <td
                                       key={`${totalKey}__avg`}
-                                      className="h-[46px] px-2 pr-3 py-2.5 text-right sticky top-[75px] z-[30] text-[12px] text-slate-600 whitespace-nowrap"
+                                      className="h-[46px] px-2 pr-3 py-2.5 text-right z-[30] text-[12px] text-slate-600 whitespace-nowrap"
                                       style={{
+                                        ...stickyPivotTotalCellStyle(),
                                         backgroundColor:
                                           totalColumnBg,
                                         width: AVG_COL_WIDTH,
@@ -8039,8 +8077,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                   cells.push(
                                     <td
                                       key={`${totalKey}__pct`}
-                                      className="h-[46px] px-2 py-2.5 text-center sticky top-[75px] z-[30] text-[12px] text-slate-500"
+                                      className="h-[46px] px-2 py-2.5 text-center z-[30] text-[12px] text-slate-500"
                                       style={{
+                                        ...stickyPivotTotalCellStyle(),
                                         backgroundColor:
                                           totalColumnBg,
                                         width: PCT_COL_WIDTH,
@@ -8086,8 +8125,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                     out.push(
                                       <td
                                         key={key}
-                                        className="h-[46px] px-2 pr-3 py-2.5 text-right sticky top-[75px] z-[30] text-[13px] bg-slate-50 whitespace-nowrap"
+                                        className="h-[46px] px-2 pr-3 py-2.5 text-right z-[30] text-[13px] bg-slate-50 whitespace-nowrap"
                                         style={{
+                                          ...stickyPivotTotalCellStyle(),
                                           width:
                                             getPivotMetricWidth(mId),
                                           borderBottomWidth: 2,
@@ -8202,8 +8242,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                       out.push(
                                         <td
                                           key={`${key}__avg`}
-                                          className="h-[46px] px-2 pr-3 py-2.5 text-right sticky top-[75px] z-[30] text-[12px] text-slate-600 bg-slate-50 whitespace-nowrap"
+                                          className="h-[46px] px-2 pr-3 py-2.5 text-right z-[30] text-[12px] text-slate-600 bg-slate-50 whitespace-nowrap"
                                           style={{
+                                            ...stickyPivotTotalCellStyle(),
                                             width: AVG_COL_WIDTH,
                                             borderBottomWidth: 2,
                                             borderBottomStyle: "solid",
@@ -8246,8 +8287,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                       out.push(
                                         <td
                                           key={`${key}__pct`}
-                                          className="h-[46px] px-2 py-2.5 text-center sticky top-[75px] z-[30] text-[12px] text-slate-500 bg-slate-50"
+                                          className="h-[46px] px-2 py-2.5 text-center z-[30] text-[12px] text-slate-500 bg-slate-50"
                                           style={{
+                                            ...stickyPivotTotalCellStyle(),
                                             width: PCT_COL_WIDTH,
                                             borderBottomWidth: 2,
                                             borderBottomStyle: "solid",
@@ -8292,8 +8334,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                   out.push(
                                     <td
                                       key={totalKey}
-                                      className="h-[46px] px-2 pr-3 py-2.5 text-right sticky top-[75px] z-[30] text-[13px] whitespace-nowrap"
+                                      className="h-[46px] px-2 pr-3 py-2.5 text-right z-[30] text-[13px] whitespace-nowrap"
                                       style={{
+                                        ...stickyPivotTotalCellStyle(),
                                         backgroundColor: totalColumnBg,
                                         width:
                                           getPivotTotalWidth(mId),
@@ -8388,8 +8431,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                     out.push(
                                       <td
                                         key={`${totalKey}__avg`}
-                                        className="h-[46px] px-2 pr-3 py-2.5 text-right sticky top-[75px] z-[30] text-[12px] text-slate-600 whitespace-nowrap"
+                                        className="h-[46px] px-2 pr-3 py-2.5 text-right z-[30] text-[12px] text-slate-600 whitespace-nowrap"
                                         style={{
+                                          ...stickyPivotTotalCellStyle(),
                                           backgroundColor: totalColumnBg,
                                           width: AVG_COL_WIDTH,
                                           borderBottomWidth: 2,
@@ -8413,8 +8457,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                     out.push(
                                       <td
                                         key={`${totalKey}__pct`}
-                                        className="h-[46px] px-2 py-2.5 text-center sticky top-[75px] z-[30] text-[12px] text-slate-500"
+                                        className="h-[46px] px-2 py-2.5 text-center z-[30] text-[12px] text-slate-500"
                                         style={{
+                                          ...stickyPivotTotalCellStyle(),
                                           backgroundColor: totalColumnBg,
                                           width: PCT_COL_WIDTH,
                                           borderBottomWidth: 2,
@@ -9120,7 +9165,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                     className={ANALYSIS_TABLE_CLASS}
                     style={ANALYSIS_TABLE_STYLE}
                   >
-                    <thead className="sticky top-0 z-[40]">
+                    <thead className="z-[40]">
                       <tr>
                         <th
                           style={{
@@ -9136,8 +9181,9 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                             borderRightStyle: "solid",
                             boxShadow:
                               "1px 0 0 0 rgba(148,163,184,0.18), 6px 0 16px -4px rgba(0,0,0,0.08), 2px 0 6px -2px rgba(0,0,0,0.05)",
+                            ...stickyStdHeaderCornerStyle(),
                           }}
-                          className="relative px-4 py-3 text-left text-xs font-bold uppercase tracking-wider sticky left-0 top-0 z-[50] group select-none"
+                          className="relative px-4 py-3 text-left text-xs font-bold uppercase tracking-wider group select-none"
                         >
                           <div
                             className="group flex cursor-pointer items-center gap-2 overflow-hidden pr-1 transition-colors hover:opacity-90"
@@ -9212,6 +9258,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                           "solid",
                                         borderBottomColor:
                                           "rgba(241, 241, 241, 0.25)",
+                                        ...stickyStdHeaderCellStyle(),
                                         ...(canShowPct
                                           ? {}
                                           : {
@@ -9294,6 +9341,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                         "solid",
                                       borderBottomColor:
                                         "rgba(241, 241, 241, 0.25)",
+                                      ...stickyStdHeaderCellStyle(),
                                       ...(!canShowPct &&
                                       isLastMetric
                                         ? {
@@ -9327,6 +9375,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                         "solid",
                                       borderBottomColor:
                                         "rgba(241, 241, 241, 0.25)",
+                                      ...stickyStdHeaderCellStyle(),
                                       borderRightWidth:
                                         isLastMetric ? 2 : 1,
                                       borderRightStyle: "solid",
@@ -9360,10 +9409,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                             style={{
                               width:
                                 columnWidths["grouping"] || 350,
-                              position: "sticky",
-                              left: 0,
-                              top: 41,
-                              zIndex: 40,
+                              ...stickyStdTotalCornerStyle(),
                               backgroundColor: tableTheme.rowEvenBg,
                               ...bc("#e2e8f0"),
                               borderBottomWidth: 2,
@@ -9374,7 +9420,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                               boxShadow:
                                 "1px 0 0 0 rgba(148,163,184,0.18), 6px 0 16px -4px rgba(0,0,0,0.08), 2px 0 6px -2px rgba(0,0,0,0.05)",
                             }}
-                            className="h-[46px] px-4 py-2.5 overflow-hidden text-ellipsis whitespace-nowrap text-[13px] uppercase tracking-wide"
+                            className="px-4 py-2.5 overflow-hidden text-ellipsis whitespace-nowrap text-[13px] uppercase tracking-wide"
                           >
                             Total
                           </td>
@@ -9400,9 +9446,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                         getStdMetricWidth(
                                           metricId,
                                         ),
-                                      position: "sticky",
-                                      top: 41,
-                                      zIndex: 30,
+                                      ...stickyStdTotalCellStyle(),
                                       backgroundColor:
                                         tableTheme.rowEvenBg,
                                       ...bc("#e2e8f0"),
@@ -9435,9 +9479,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                     <td
                                       style={{
                                         width: AVG_COL_WIDTH,
-                                        position: "sticky",
-                                        top: 41,
-                                        zIndex: 30,
+                                        ...stickyStdTotalCellStyle(),
                                         backgroundColor:
                                           tableTheme.rowEvenBg,
                                         ...bc("#e2e8f0"),
@@ -9478,9 +9520,7 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
                                     <td
                                       style={{
                                         width: PCT_COL_WIDTH,
-                                        position: "sticky",
-                                        top: 41,
-                                        zIndex: 30,
+                                        ...stickyStdTotalCellStyle(),
                                         backgroundColor:
                                           tableTheme.rowEvenBg,
                                         ...bc("#e2e8f0"),

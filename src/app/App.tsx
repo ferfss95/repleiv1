@@ -406,6 +406,34 @@ export default function App() {
                     : "overflow-y-auto pb-6",
                 )}
               >
+                {/* Resumo sempre abaixo do título (padronizado em todas as etapas 1–3) */}
+                {currentStep !== "analysis" && (
+                  <AnalysisSummarySection
+                    moduleConfig={currentModuleConfig}
+                    selections={selections}
+                    exclusions={exclusions}
+                    grouping={grouping}
+                    analysisMode={analysisMode}
+                    periodType={periodType}
+                    dateRange={dateRange}
+                    selectedMonths={selectedMonths}
+                    selectedYears={selectedYears}
+                    weeklyMode={weeklyMode}
+                    weeklyComputedDays={weeklyComputedDays}
+                    selectedSpecificDays={selectedSpecificDays}
+                    compDateRange1={compDateRange1}
+                    compDateRange2={compDateRange2}
+                    compMonths1={compMonths1}
+                    compMonths2={compMonths2}
+                    compYears1={compYears1}
+                    compYears2={compYears2}
+                    compSpecificDays1={compSpecificDays1}
+                    compSpecificDays2={compSpecificDays2}
+                    compWeeklyComputedDays1={compWeeklyComputedDays1}
+                    compWeeklyComputedDays2={compWeeklyComputedDays2}
+                  />
+                )}
+
                 {/* Config Panel - Modo de Análise + Período */}
                 {currentStep === "selection" && (
                   <SelectionView
@@ -454,33 +482,6 @@ export default function App() {
                     handleManualP2SpecificDaysChange={handleManualP2SpecificDaysChange}
                     handleManualP2MonthsChange={handleManualP2MonthsChange}
                     handleManualP2YearsChange={handleManualP2YearsChange}
-                  />
-                )}
-
-                {currentStep !== "analysis" && (
-                  <AnalysisSummarySection
-                    moduleConfig={currentModuleConfig}
-                    selections={selections}
-                    exclusions={exclusions}
-                    grouping={grouping}
-                    analysisMode={analysisMode}
-                    periodType={periodType}
-                    dateRange={dateRange}
-                    selectedMonths={selectedMonths}
-                    selectedYears={selectedYears}
-                    weeklyMode={weeklyMode}
-                    weeklyComputedDays={weeklyComputedDays}
-                    selectedSpecificDays={selectedSpecificDays}
-                    compDateRange1={compDateRange1}
-                    compDateRange2={compDateRange2}
-                    compMonths1={compMonths1}
-                    compMonths2={compMonths2}
-                    compYears1={compYears1}
-                    compYears2={compYears2}
-                    compSpecificDays1={compSpecificDays1}
-                    compSpecificDays2={compSpecificDays2}
-                    compWeeklyComputedDays1={compWeeklyComputedDays1}
-                    compWeeklyComputedDays2={compWeeklyComputedDays2}
                   />
                 )}
 

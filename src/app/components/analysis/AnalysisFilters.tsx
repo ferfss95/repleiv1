@@ -22,6 +22,10 @@ import {
 } from '../../constants';
 import { getModuleColors, type ModuleColors } from '../../constants/moduleColors';
 import { filterAttributesVisibleInUi } from '../../data/attributeUiVisibility';
+import {
+  isRedeLockedAttribute,
+  sanitizeRedeSelection,
+} from '../../data/attributeUiConfig';
 
 // ══════════════════════════════════════════════════════════════════
 // TYPES
@@ -109,7 +113,9 @@ export const AnalysisFilters: React.FC<AnalysisFiltersProps> = ({
                 onUpdateSelection={(vals) =>
                   setSelections((prev) => ({
                     ...prev,
-                    [attr.id]: vals,
+                    [attr.id]: isRedeLockedAttribute(attr.id)
+                      ? sanitizeRedeSelection(vals)
+                      : vals,
                   }))
                 }
                 onUpdateExclusion={(vals) =>
@@ -153,7 +159,9 @@ export const AnalysisFilters: React.FC<AnalysisFiltersProps> = ({
                     onUpdateSelection={(vals) =>
                       setSelections((prev) => ({
                         ...prev,
-                        [attr.id]: vals,
+                        [attr.id]: isRedeLockedAttribute(attr.id)
+                          ? sanitizeRedeSelection(vals)
+                          : vals,
                       }))
                     }
                     onUpdateExclusion={(vals) =>
@@ -199,7 +207,9 @@ export const AnalysisFilters: React.FC<AnalysisFiltersProps> = ({
                   onUpdateSelection={(vals) =>
                     setSelections((prev) => ({
                       ...prev,
-                      [attr.id]: vals,
+                      [attr.id]: isRedeLockedAttribute(attr.id)
+                        ? sanitizeRedeSelection(vals)
+                        : vals,
                     }))
                   }
                   onUpdateExclusion={(vals) =>

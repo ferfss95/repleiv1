@@ -16,8 +16,8 @@ import {
   Tag,
   Package,
 } from 'lucide-react';
+import { REDE_UI_OPTIONS } from '../data/attributeUiConfig';
 import {
-  REDE_OPTIONS,
   TIPO_OPTIONS_LOJA,
   ESTADOS_LIST,
   REGIONAL_OPTIONS,
@@ -94,7 +94,7 @@ export const lojaModule: ModuleConfig = {
   // ── Dynamic options per domain attribute ──────────────────
   getDomainAttributeOptions(attrId, selections) {
     switch (attrId) {
-      case 'rede':      return REDE_OPTIONS;
+      case 'rede':      return [...REDE_UI_OPTIONS];
       case 'tipo':      return TIPO_OPTIONS_LOJA;
       case 'estado':
         return filterStatesByKnownLinks(ESTADOS_LIST, selections);

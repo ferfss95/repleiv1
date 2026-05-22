@@ -41,8 +41,8 @@ import {
   ClipboardList,
   CircleDollarSign,
 } from 'lucide-react';
+import { REDE_UI_OPTIONS } from '../data/attributeUiConfig';
 import {
-  REDE_OPTIONS,
   TIPO_OPTIONS_INDICADORES,
   ESTADOS_LIST,
   REGIONAL_OPTIONS,
@@ -110,7 +110,7 @@ export const indicadoresModule: ModuleConfig = {
   // ── Opções dinâmicas por atributo ────────────────────────
   getDomainAttributeOptions(attrId, selections) {
     switch (attrId) {
-      case 'rede':     return REDE_OPTIONS;
+      case 'rede':     return [...REDE_UI_OPTIONS];
       case 'tipo':     return TIPO_OPTIONS_INDICADORES;
       case 'estado':
         return filterStatesByKnownLinks(ESTADOS_LIST, selections);

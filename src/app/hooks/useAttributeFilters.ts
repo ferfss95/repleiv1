@@ -23,12 +23,12 @@ import {
 } from '../modules/types';
 import { isAttributeVisibleInUi } from '../data/attributeUiVisibility';
 import {
-  isRedeStaticDisplayAttribute,
+  isRedeLockedAttribute,
   REDE_LOCKED_NETWORK,
+  REDE_UI_OPTIONS,
 } from '../data/attributeUiConfig';
 import type { Module } from '../constants';
 import {
-  REDE_OPTIONS,
   CANAL_OPTIONS,
   TIPO_OPTIONS,
   REGIONAL_OPTIONS,
@@ -74,7 +74,7 @@ export const useAttributeFilters = (props: UseAttributeFiltersProps) => {
 
   const moduleId = currentModuleConfig.id as Module;
 
-  // REDE v.1: logo estático; filtro interno sempre Centauro quando o atributo está visível.
+  // REDE v.1: Centauro sempre selecionado; sem agrupamento/exclusão.
   useEffect(() => {
     if (!isAttributeVisibleInUi(moduleId, 'rede')) return;
 
@@ -116,7 +116,7 @@ export const useAttributeFilters = (props: UseAttributeFiltersProps) => {
       // Otherwise handle location attributes (for PRODUTO module)
       switch (attrId) {
         case 'rede':
-          return REDE_OPTIONS;
+          return [...REDE_UI_OPTIONS];
         case 'canal':
           return CANAL_OPTIONS;
         case 'tipo':
@@ -194,7 +194,7 @@ export const useAttributeFilters = (props: UseAttributeFiltersProps) => {
   // ─── HANDLE ATTRIBUTE CLICK (Grouping toggle) ───
   const handleAttributeClick = useCallback(
     (attrId: string) => {
-      if (isRedeStaticDisplayAttribute(attrId)) return;
+      if (isRedeLockedAttribute(attrId)) return;
 
       const module = currentModuleConfig.id as Module;
       if (!isAttributeVisibleInUi(module, attrId)) return;
