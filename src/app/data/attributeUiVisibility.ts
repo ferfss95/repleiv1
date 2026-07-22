@@ -27,6 +27,14 @@ const PRODUTO_DOMAIN_UI_VISIBLE = new Set([
   'tamanho',
 ]);
 
+/** Atributos extras visíveis por módulo, fora do domínio Produto compartilhado e de Localização. */
+const EXTRA_UI_VISIBLE_BY_MODULE: Record<Module, ReadonlySet<string>> = {
+  PRODUTO: new Set(),
+  LOJA: new Set(),
+  INDICADORES: new Set(),
+  EXTRAVIOS: new Set(),
+};
+
 /** Localização por módulo (coluna MÓDULO da planilha). */
 const LOCATION_UI_VISIBLE_BY_MODULE: Record<Module, ReadonlySet<string>> = {
   PRODUTO: new Set([
@@ -52,6 +60,9 @@ const LOCATION_UI_VISIBLE_BY_MODULE: Record<Module, ReadonlySet<string>> = {
 export function isAttributeVisibleInUi(module: Module, attrId: string): boolean {
   if (ATTRIBUTE_UI_HIDDEN_ALL_MODULES.has(attrId)) {
     return false;
+  }
+  if (EXTRA_UI_VISIBLE_BY_MODULE[module].has(attrId)) {
+    return true;
   }
   if (isProdutoDomainAttrId(attrId)) {
     return (

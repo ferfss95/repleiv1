@@ -22,6 +22,14 @@ export const CANAL_GROUP_CENTAURO_IDS: readonly string[] = [
 /** Modal Canal — seleção rápida “Todos Nike”. */
 export const CANAL_GROUP_NIKE_IDS: readonly string[] = ["NVS", "NDIS", "Digital Nike"];
 
+/** Modal Loja (PRODUTO): grupo "CD / CDS". */
+export const LOJA_GROUP_CD_IDS: readonly string[] = [
+  "CD Jarinu - SP",
+  "CD Extrema - MG",
+  "CDS Lapa - SP",
+  "CDS João Pessoa - PB",
+];
+
 export const FATURAMENTO_OPTIONS = [
   "Loja Física",
   "Digital"
@@ -2511,6 +2519,11 @@ export const MOCK_DEP = [
   72, 86, 103, 96, 72, 84, 106, 78, 74, 62, 90, 77, 94, 104, 89
 ];
 
+export const MOCK_TESTE = [
+  10, 25, 18, 32, 14, 47, 21, 38, 29, 16, 42, 11, 35, 27, 19, 44, 23, 31, 15, 39, 26, 12,
+  48, 20, 33, 17, 41, 24, 36, 13, 45, 22, 30, 28, 43, 37, 34
+];
+
 export const MOCK_DEF = [
   76.22, 83.77, 75.48, 80.72, 84.10, 81.49, 82.35, 89.88, 87.60, 101.79, 81.74, 91.19, 96.04,
   79.04, 99.31, 110.27, 118.02, 141.39, 93.77, 100.27, 141.03, 97.15, 85.78, 85.83, 108.22,
@@ -2837,6 +2850,7 @@ export const MOCK_IND_CONV_CLICK = [
 
 export const METRIC_CONFIG: Record<string, { data: number[], format: 'currency' | 'percent' | 'percent0' | 'integer' | 'days' | 'decimal' | 'decimal1' | 'percent1' | 'variation' }> = {
   // Produto metrics
+  'teste': { data: MOCK_TESTE, format: 'integer' },
   'venda': { data: MOCK_ROB, format: 'currency' },
   'sss': { data: MOCK_SSS, format: 'percent' },
   'cmv': { data: MOCK_CMV, format: 'currency' },

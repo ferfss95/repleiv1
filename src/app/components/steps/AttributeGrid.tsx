@@ -183,37 +183,44 @@ export const AttributeGrid = React.memo<AttributeGridProps>(function AttributeGr
                 <div className="h-px flex-1 bg-slate-200" />
               </div>
               <ScrollableRow>
-                {visibleLocationAttributes.map((attr) => (
-                  <SmartAttributeCard
-                    key={attr.id}
-                    attribute={{ ...attr, options: getAttributeOptions(attr.id) }}
-                    step={currentStep}
-                    moduleColors={moduleColors}
-                    groupingLimitReached={
-                    currentStep === "grouping" &&
-                    grouping.length >= MAX_GROUPING_LEVELS
-                  }
-                    selectionCount={selections[attr.id]?.length || 0}
-                    isGrouped={grouping.includes(attr.id)}
-                    groupLevel={grouping.indexOf(attr.id) + 1}
-                    exclusionCount={exclusions[attr.id]?.length || 0}
-                    onToggleGroup={() => handleAttributeClick(attr.id)}
-                    onUpdateSelection={(vals) =>
-                      setSelections((prev) => ({
-                        ...prev,
-                        [attr.id]: isRedeLockedAttribute(attr.id)
-                          ? sanitizeRedeSelection(vals)
-                          : vals,
-                      }))
-                    }
-                    onUpdateExclusion={(vals) =>
-                      setExclusions((prev) => ({ ...prev, [attr.id]: vals }))
-                    }
-                    currentSelection={selections[attr.id] || []}
-                    currentExclusion={exclusions[attr.id] || []}
-                    tooltip={attr.tooltip || ""}
-                  />
-                ))}
+                {visibleLocationAttributes.map((attr) => {
+                  const isLojaCdsGrouping = attr.id === "loja";
+                  const displayAttr = isLojaCdsGrouping
+                    ? { ...attr, label: "LOJA / CD", options: getAttributeOptions(attr.id) }
+                    : { ...attr, options: getAttributeOptions(attr.id) };
+                  return (
+                    <SmartAttributeCard
+                      key={attr.id}
+                      attribute={displayAttr}
+                      step={currentStep}
+                      moduleColors={moduleColors}
+                      groupingLimitReached={
+                        currentStep === "grouping" &&
+                        grouping.length >= MAX_GROUPING_LEVELS
+                      }
+                      selectionCount={selections[attr.id]?.length || 0}
+                      isGrouped={grouping.includes(attr.id)}
+                      groupLevel={grouping.indexOf(attr.id) + 1}
+                      exclusionCount={exclusions[attr.id]?.length || 0}
+                      onToggleGroup={() => handleAttributeClick(attr.id)}
+                      onUpdateSelection={(vals) =>
+                        setSelections((prev) => ({
+                          ...prev,
+                          [attr.id]: isRedeLockedAttribute(attr.id)
+                            ? sanitizeRedeSelection(vals)
+                            : vals,
+                        }))
+                      }
+                      onUpdateExclusion={(vals) =>
+                        setExclusions((prev) => ({ ...prev, [attr.id]: vals }))
+                      }
+                      currentSelection={selections[attr.id] || []}
+                      currentExclusion={exclusions[attr.id] || []}
+                      tooltip={attr.tooltip || ""}
+                      useLojaCdsGrouping={isLojaCdsGrouping}
+                    />
+                  );
+                })}
               </ScrollableRow>
             </div>
           )}

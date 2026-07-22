@@ -9,7 +9,7 @@ import {
   MARCA_OPTION_GROUPS,
   modeloListDisplayLabel,
   CANAL_GROUP_CENTAURO_IDS,
-  CANAL_GROUP_NIKE_IDS,
+  LOJA_GROUP_CD_IDS,
 } from "../referenceData";
 import {
   isRedeLockedAttribute,
@@ -48,6 +48,8 @@ interface AttributeCardProps {
   currentSelection: string[];
   currentExclusion: string[];
   tooltip?: string;
+  /** Quando true, o modal do atributo `loja` mostra duas seções: "CD / CDS" e "Lojas". */
+  useLojaCdsGrouping?: boolean;
 }
 
 const BTN_DIM = "w-[140px] h-[50px] shrink-0 rounded-xl border transition-all duration-200 outline-none";
@@ -67,6 +69,7 @@ export function AttributeCard({
   currentSelection,
   currentExclusion,
   tooltip,
+  useLojaCdsGrouping = false,
 }: AttributeCardProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -242,15 +245,54 @@ export function AttributeCard({
       );
     };
     const centauro = section("Todos Centauro", CANAL_GROUP_CENTAURO_IDS);
-    const nike = section("Todos Nike", CANAL_GROUP_NIKE_IDS);
-    if (!centauro && !nike) {
+    if (!centauro) {
       return (
         <div className="py-8 text-center text-slate-400">
           <p className="text-xs">Nenhum resultado encontrado</p>
         </div>
       );
     }
-    return <div className="space-y-3 px-0.5 py-1">{centauro}{nike}</div>;
+    return <div className="space-y-3 px-0.5 py-1">{centauro}</div>;
+  };
+
+  /** Modal LOJA (PRODUTO): hierarquia CD / CDS + Lojas (com busca nos filhos). */
+  const renderLojaCdsGroupedPanel = () => {
+    const q = searchTerm.trim().toLowerCase();
+    const section = (title: string, members: readonly string[]) => {
+      const visible = q
+        ? members.filter((m) => m.toLowerCase().includes(q))
+        : [...members];
+      if (visible.length === 0) return null;
+      return (
+        <div
+          key={title}
+          className="overflow-hidden rounded-lg border border-slate-200/90 bg-slate-50/50 shadow-sm"
+        >
+          {renderCanalMasterRow(title, members)}
+          <div className="border-t border-slate-200/80 bg-white/90 px-1 py-1">
+            <div className="ml-2 border-l-2 border-slate-200 pl-2.5">
+              <div className="space-y-0.5">
+                {visible.map((opt) => (
+                  <div key={opt} className="pl-0.5">
+                    {renderOptionRow(opt)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+    const cds = section("CD / CDS", LOJA_GROUP_CD_IDS);
+    const lojas = section("Lojas", attribute.options);
+    if (!cds && !lojas) {
+      return (
+        <div className="py-8 text-center text-slate-400">
+          <p className="text-xs">Nenhum resultado encontrado</p>
+        </div>
+      );
+    }
+    return <div className="space-y-3 px-0.5 py-1">{cds}{lojas}</div>;
   };
 
   const isSelected1 =
@@ -470,7 +512,9 @@ export function AttributeCard({
       <Popover.Content
         className={cn(
           "z-50 flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl duration-200 animate-in zoom-in-95",
-          attribute.id === "canal" ? "w-[308px]" : "w-[280px]",
+          attribute.id === "canal" || (useLojaCdsGrouping && attribute.id === "loja")
+            ? "w-[308px]"
+            : "w-[280px]",
         )}
         sideOffset={8}
         side="top"
@@ -560,6 +604,8 @@ export function AttributeCard({
             )
           ) : attribute.id === "canal" ? (
             renderCanalGroupedPanel()
+          ) : useLojaCdsGrouping && attribute.id === "loja" ? (
+            renderLojaCdsGroupedPanel()
           ) : filteredOptions.length > 0 ? (
             <div className="space-y-0.5">
               {filteredOptions.map((opt) => (

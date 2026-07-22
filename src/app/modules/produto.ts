@@ -28,6 +28,7 @@ import {
   Refrigerator,
   BarChart3,
   Award,
+  FlaskConical,
 } from 'lucide-react';
 import {
   CATEGORIAS_LIST,
@@ -129,6 +130,16 @@ export function isProdutoDomainAttrId(attrId: string): boolean {
   return PRODUTO_DOMAIN_ATTR_ID_SET.has(attrId);
 }
 
+/** Atributo exclusivo do PRODUTO (não compartilhado com LOJA/INDICADORES). */
+export const TESTE_OPTIONS = ['Teste A', 'Teste B', 'Teste C'];
+
+const TESTE_ATTRIBUTE_DEF: AttributeDef = {
+  id: 'teste',
+  label: 'TESTE',
+  icon: FlaskConical,
+  options: [],
+};
+
 // ──────────────────────────────────────────────────────────────
 // PRODUTO module configuration
 // ──────────────────────────────────────────────────────────────
@@ -139,7 +150,7 @@ export const produtoModule: ModuleConfig = {
   domainSectionLabel: 'Produto',
 
   // ── Domain attributes ──────────────────────────────────────
-  domainAttributes: PRODUTO_DOMAIN_ATTRIBUTE_DEFS,
+  domainAttributes: [...PRODUTO_DOMAIN_ATTRIBUTE_DEFS, TESTE_ATTRIBUTE_DEF],
 
   // ── Dynamic options per domain attribute ──────────────────
   getDomainAttributeOptions(attrId, selections) {
@@ -208,6 +219,7 @@ export const produtoModule: ModuleConfig = {
       case 'cor':          return COR_OPTIONS;
       case 'tamanho':      return TAMANHO_OPTIONS;
       case 'sabor':        return SABOR_OPTIONS;
+      case 'teste':        return TESTE_OPTIONS;
       default:             return [];
     }
   },
@@ -259,6 +271,7 @@ export const produtoModule: ModuleConfig = {
 
   // ── Metrics ───────────────────────────────────────────────
   metrics: [
+    { id: 'teste',       label: 'Teste',            icon: FlaskConical },
     { id: 'venda',       label: 'Venda (ROB)',      icon: DollarSign  },
     { id: 'qtd_venda',   label: 'Qtd Vendas',       icon: ShoppingCart },
     {
@@ -381,6 +394,7 @@ export const produtoModule: ModuleConfig = {
   ],
 
   metricDisplayOrder: [
+    'teste',
     'venda', 'qtd_venda', 'qtd_itens', 'sss', 'cmv', 'cmv_comercial', 'lucro_bruto', 'margem', 'margem_liquida',
     'qtd_estoque', 'vlr_estoque', 'dep', 'def',
     'ppa', 'match_preco', 'match_preco_valor',

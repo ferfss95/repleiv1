@@ -63,11 +63,11 @@ export const MODULE_COLORS: Record<Module, ModuleColors> = {
   // ── PRODUTO (Azul) ─────────────────────────────────────────────────────────
   PRODUTO: {
     primaryColor: '#2563EB',    // COR1 — Principal / BG Header
-    iconColor: '#1545C6',       // COR2 — Complementar / Ícone
-    highlightColor: '#A6D0FF',  // COR3 — Destaque / Focus / Hover
-    accentColor: '#A8BECE',     // COR4 — Secundária
-    backgroundColor: '#F8FBFF', // COR5 — Fundo branco azulado
-    topBarColor: '#1545C6',     // @deprecated — alias de iconColor
+    iconColor: '#1E3D92',       // COR2 — Complementar / Ícone
+    highlightColor: '#BFDBFE',  // COR3 — Destaque / Focus / Hover
+    accentColor: '#A8BCD9',     // COR4 — Secundária
+    backgroundColor: '#F6F9FF', // COR5 — Fundo branco azulado
+    topBarColor: '#1E3D92',     // @deprecated — alias de iconColor
   },
 
   // ── LOJA (Verde) ───────────────────────────────────────────────────────────
