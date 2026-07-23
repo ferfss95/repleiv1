@@ -83,6 +83,7 @@ import {
   isPercentRatioAggregatedAverage,
   filterCitiesByKnownLinks,
   filterRegionalsByKnownLinks,
+  filterNacionalsByKnownLinks,
   filterStatesByKnownLinks,
   filterStoresByKnownLinks,
   applyParentContextToOptions,
@@ -1028,6 +1029,11 @@ export const AnalysisView = React.memo<AnalysisViewProps>(function AnalysisView(
       // 4.2 Cross-attribute filtering: aplica vínculos conhecidos para estados
       if (attrId === "estado") {
         options = filterStatesByKnownLinks(options, selections);
+      }
+
+      // 4.3 Cross-attribute filtering: aplica vínculos conhecidos para nacional
+      if (attrId === "nacional") {
+        options = filterNacionalsByKnownLinks(options, selections);
       }
 
       // 5. Module-specific cross-attribute filtering (e.g. categoria↔modalidade, grupo↔subgrupo)

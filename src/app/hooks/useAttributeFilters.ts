@@ -32,6 +32,7 @@ import {
   CANAL_OPTIONS,
   TIPO_OPTIONS,
   REGIONAL_OPTIONS,
+  NAC_OPTIONS,
   LOCALIZACAO_OPTIONS,
   VENDEDOR_OPTIONS,
   ORIGEM_OPTIONS,
@@ -41,6 +42,7 @@ import {
   ESTADOS_LIST,
   filterCitiesByKnownLinks,
   filterRegionalsByKnownLinks,
+  filterNacionalsByKnownLinks,
   filterStatesByKnownLinks,
   filterStoresByKnownLinks,
 } from '../referenceData';
@@ -123,6 +125,8 @@ export const useAttributeFilters = (props: UseAttributeFiltersProps) => {
           return TIPO_OPTIONS;
         case 'regional':
           return filterRegionalsByKnownLinks(REGIONAL_OPTIONS, selections);
+        case 'nacional':
+          return filterNacionalsByKnownLinks([...NAC_OPTIONS], selections);
         case 'localizacao':
           return LOCALIZACAO_OPTIONS;
         case 'vendedor':

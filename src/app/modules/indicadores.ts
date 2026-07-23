@@ -40,18 +40,21 @@ import {
   Zap,
   ClipboardList,
   CircleDollarSign,
+  Flag,
 } from 'lucide-react';
 import { REDE_UI_OPTIONS } from '../data/attributeUiConfig';
 import {
   TIPO_OPTIONS_INDICADORES,
   ESTADOS_LIST,
   REGIONAL_OPTIONS,
+  NAC_OPTIONS,
   LOJAS_LIST,
   CIDADES_BY_ESTADO,
   LOJAS_BY_CIDADE,
   orderStoresByNetwork,
   filterCitiesByKnownLinks,
   filterRegionalsByKnownLinks,
+  filterNacionalsByKnownLinks,
   filterStatesByKnownLinks,
   filterStoresByKnownLinks,
 } from '../referenceData';
@@ -100,6 +103,7 @@ export const indicadoresModule: ModuleConfig = {
     { id: 'rede',     label: 'REDE',     icon: Building2,  options: [] },
     { id: 'tipo',     label: 'TIPO',     icon: Truck,      options: [] },
     { id: 'estado',   label: 'ESTADO',   icon: MapPin,     options: [] },
+    { id: 'nacional', label: 'NACIONAL', icon: Flag,       options: [] },
     { id: 'regional', label: 'REGIONAL', icon: Building2,  options: [] },
     { id: 'cidade',   label: 'CIDADE',   icon: MapPin,     options: [] },
     { id: 'loja',     label: 'LOJA',     icon: Building2,  options: [] },
@@ -116,6 +120,8 @@ export const indicadoresModule: ModuleConfig = {
         return filterStatesByKnownLinks(ESTADOS_LIST, selections);
       case 'regional':
         return filterRegionalsByKnownLinks(REGIONAL_OPTIONS, selections);
+      case 'nacional':
+        return filterNacionalsByKnownLinks([...NAC_OPTIONS], selections);
       case 'cidade': {
         const selectedEstados = selections['estado'] || [];
         if (selectedEstados.length === 0) {

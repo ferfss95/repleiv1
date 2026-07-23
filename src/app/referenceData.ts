@@ -78,11 +78,7 @@ export const REGIONAL_OPTIONS = [
   "Tit\u00e3s SP-MG",
   "Ultra High",
   "\u00c1guias de Elite",
-  "\u00c1guias do Cerrado",
-  "D1",
-  "D2",
-  "D3",
-  "D4"
+  "\u00c1guias do Cerrado"
 ];
 
 /** Centros CD (apenas CD, sem CDS) — usado no cluster de localização */
@@ -505,6 +501,30 @@ export const LOJAS_BY_REGIONAL: Record<string, string[]> = REGIONAL_OPTIONS.redu
   (acc, regional) => {
     const allowedCodes = new Set(REGIONAL_TO_STORE_CODES[regional] || []);
     acc[regional] = ORDERED_LOJAS_LIST.filter((store) =>
+      allowedCodes.has(getStoreCode(store)),
+    );
+    return acc;
+  },
+  {} as Record<string, string[]>,
+);
+
+// ─── Nacional (relação extraída de `Base de Lojas Centauro 2026.xlsx`, coluna Nacional) ──
+export const NAC_OPTIONS = ['NAC 1', 'NAC 2', 'NAC 3'];
+
+/**
+ * Nacional → códigos de loja, conforme planilha oficial de cadastro.
+ * Cobre apenas lojas Centauro (CE*) — Fisia não consta na planilha de origem.
+ */
+const NACIONAL_TO_STORE_CODES: Record<string, string[]> = {
+  "NAC 1": ["CE99", "CE97", "CE96", "CE95", "CE94", "CE92", "CE88", "CE87", "CE86", "CE85", "CE82", "CE80", "CE77", "CE76", "CE68", "CE64", "CE62", "CE57", "CE56", "CE48", "CE47", "CE46", "CE44", "CE41", "CE37", "CE32", "CE311", "CE310", "CE306", "CE305", "CE304", "CE299", "CE298", "CE297", "CE296", "CE294", "CE291", "CE286", "CE285", "CE280", "CE279", "CE273", "CE266", "CE264", "CE262", "CE260", "CE259", "CE258", "CE255", "CE250", "CE25", "CE248", "CE247", "CE246", "CE245", "CE243", "CE241", "CE240", "CE239", "CE238", "CE237", "CE236", "CE235", "CE234", "CE230", "CE23", "CE226", "CE224", "CE222", "CE221", "CE219", "CE209", "CE208", "CE207", "CE206", "CE205", "CE202", "CE199", "CE196", "CE193", "CE190", "CE188", "CE185", "CE183", "CE182", "CE180", "CE179", "CE177", "CE169", "CE168", "CE167", "CE165", "CE162", "CE159", "CE149", "CE144", "CE141", "CE139", "CE138", "CE120", "CE118", "CE117", "CE116", "CE114", "CE112", "CE109", "CE107", "CE106", "CE103", "CE102", "CE101"],
+  "NAC 2": ["CE98", "CE91", "CE90", "CE89", "CE84", "CE81", "CE75", "CE73", "CE72", "CE71", "CE70", "CE69", "CE67", "CE66", "CE63", "CE60", "CE59", "CE55", "CE54", "CE53", "CE52", "CE50", "CE45", "CE43", "CE39", "CE38", "CE35", "CE316", "CE315", "CE314", "CE313", "CE312", "CE308", "CE307", "CE303", "CE301", "CE300", "CE295", "CE292", "CE284", "CE283", "CE281", "CE278", "CE277", "CE276", "CE275", "CE274", "CE272", "CE270", "CE269", "CE267", "CE263", "CE256", "CE254", "CE253", "CE252", "CE249", "CE242", "CE229", "CE227", "CE225", "CE223", "CE220", "CE218", "CE217", "CE203", "CE200", "CE20", "CE198", "CE195", "CE194", "CE192", "CE187", "CE186", "CE184", "CE181", "CE178", "CE176", "CE175", "CE174", "CE173", "CE171", "CE170", "CE164", "CE161", "CE158", "CE157", "CE156", "CE153", "CE152", "CE151", "CE150", "CE146", "CE145", "CE143", "CE142", "CE135", "CE133", "CE131", "CE130", "CE129", "CE128", "CE125", "CE124", "CE123", "CE122", "CE121", "CE119", "CE115", "CE1101", "CE108", "CE105", "CE100"],
+  "NAC 3": ["CE34", "CE288", "CE287", "CE197", "CE147"],
+};
+
+export const LOJAS_BY_NACIONAL: Record<string, string[]> = NAC_OPTIONS.reduce(
+  (acc, nac) => {
+    const allowedCodes = new Set(NACIONAL_TO_STORE_CODES[nac] || []);
+    acc[nac] = ORDERED_LOJAS_LIST.filter((store) =>
       allowedCodes.has(getStoreCode(store)),
     );
     return acc;
@@ -1306,6 +1326,11 @@ const getStoresFromRegionals = (regionals: string[]) => {
   return new Set(stores);
 };
 
+const getStoresFromNacionais = (nacionais: string[]) => {
+  const stores = nacionais.flatMap((nac) => LOJAS_BY_NACIONAL[nac] || []);
+  return new Set(stores);
+};
+
 const getStoresFromNetworks = (networks: string[]) => {
   const normalized = new Set(networks.map((value) => value.trim().toLowerCase()));
   const stores = LOJAS_LIST.filter((store) => {
@@ -1347,6 +1372,11 @@ export const filterStoresByKnownLinks = (
   const selectedRegionals = selections["regional"] || [];
   if (selectedRegionals.length > 0) {
     allowed = intersectSets(allowed, getStoresFromRegionals(selectedRegionals));
+  }
+
+  const selectedNacionais = selections["nacional"] || [];
+  if (selectedNacionais.length > 0) {
+    allowed = intersectSets(allowed, getStoresFromNacionais(selectedNacionais));
   }
 
   const selectedNetworks = selections["rede"] || [];
@@ -1395,6 +1425,16 @@ export const filterCitiesByKnownLinks = (
       ).filter(Boolean),
     );
     allowedCities = intersectSets(allowedCities, regionalCities);
+  }
+
+  const selectedNacionais = selections["nacional"] || [];
+  if (selectedNacionais.length > 0) {
+    const nacionalCities = new Set(
+      Array.from(getStoresFromNacionais(selectedNacionais))
+        .map((store) => LOJA_TO_CIDADE[store])
+        .filter(Boolean),
+    );
+    allowedCities = intersectSets(allowedCities, nacionalCities);
   }
 
   const selectedNetworks = selections["rede"] || [];
@@ -1462,6 +1502,16 @@ export const filterRegionalsByKnownLinks = (
       selectedStores.map((store) => LOJA_TO_REGIONAL[store]).filter(Boolean),
     );
     allowedRegionals = intersectSets(allowedRegionals, regionalsByStore);
+  }
+
+  const selectedNacionais = selections["nacional"] || [];
+  if (selectedNacionais.length > 0) {
+    const regionalsByNacional = new Set(
+      Array.from(getStoresFromNacionais(selectedNacionais))
+        .map((store) => LOJA_TO_REGIONAL[store])
+        .filter(Boolean),
+    );
+    allowedRegionals = intersectSets(allowedRegionals, regionalsByNacional);
   }
 
   const selectedNetworks = selections["rede"] || [];
@@ -1534,6 +1584,20 @@ export const filterStatesByKnownLinks = (
     allowedStates = intersectSets(allowedStates, statesByRegional);
   }
 
+  const selectedNacionais = selections["nacional"] || [];
+  if (selectedNacionais.length > 0) {
+    const statesByNacional = new Set(
+      Array.from(getStoresFromNacionais(selectedNacionais))
+        .map((store) => LOJA_TO_CIDADE[store])
+        .filter(Boolean)
+        .map((city) =>
+          Object.entries(CIDADES_BY_ESTADO).find(([, cities]) => cities.includes(city))?.[0],
+        )
+        .filter(Boolean),
+    );
+    allowedStates = intersectSets(allowedStates, statesByNacional);
+  }
+
   const selectedNetworks = selections["rede"] || [];
   if (selectedNetworks.length > 0) {
     const statesByNetwork = new Set(
@@ -1566,6 +1630,74 @@ export const filterStatesByKnownLinks = (
   return stateOptions.filter((state) => allowedStates!.has(normalizeStateOption(state)));
 };
 
+export const filterNacionalsByKnownLinks = (
+  nacionalOptions: string[],
+  selections: Record<string, string[]>,
+): string[] => {
+  let allowedNacionais: Set<string> | null = null;
+
+  const selectedStates = selections["estado"] || [];
+  if (selectedStates.length > 0) {
+    const nacionaisByState = new Set(
+      Array.from(getStoresFromStates(selectedStates))
+        .map((store) => LOJA_TO_NACIONAL[store])
+        .filter(Boolean),
+    );
+    allowedNacionais = intersectSets(allowedNacionais, nacionaisByState);
+  }
+
+  const selectedCities = selections["cidade"] || [];
+  if (selectedCities.length > 0) {
+    const nacionaisByCity = new Set(
+      Array.from(getStoresFromCities(selectedCities))
+        .map((store) => LOJA_TO_NACIONAL[store])
+        .filter(Boolean),
+    );
+    allowedNacionais = intersectSets(allowedNacionais, nacionaisByCity);
+  }
+
+  const selectedRegionals = selections["regional"] || [];
+  if (selectedRegionals.length > 0) {
+    const nacionaisByRegional = new Set(
+      Array.from(getStoresFromRegionals(selectedRegionals))
+        .map((store) => LOJA_TO_NACIONAL[store])
+        .filter(Boolean),
+    );
+    allowedNacionais = intersectSets(allowedNacionais, nacionaisByRegional);
+  }
+
+  const selectedStores = selections["loja"] || [];
+  if (selectedStores.length > 0) {
+    const nacionaisByStore = new Set(
+      selectedStores.map((store) => LOJA_TO_NACIONAL[store]).filter(Boolean),
+    );
+    allowedNacionais = intersectSets(allowedNacionais, nacionaisByStore);
+  }
+
+  const selectedNetworks = selections["rede"] || [];
+  if (selectedNetworks.length > 0) {
+    const nacionaisByNetwork = new Set(
+      Array.from(getStoresFromNetworks(selectedNetworks))
+        .map((store) => LOJA_TO_NACIONAL[store])
+        .filter(Boolean),
+    );
+    allowedNacionais = intersectSets(allowedNacionais, nacionaisByNetwork);
+  }
+
+  const selectedChannels = selections["canal"] || [];
+  if (selectedChannels.length > 0) {
+    const nacionaisByChannel = new Set(
+      Array.from(getStoresFromChannels(selectedChannels))
+        .map((store) => LOJA_TO_NACIONAL[store])
+        .filter(Boolean),
+    );
+    allowedNacionais = intersectSets(allowedNacionais, nacionaisByChannel);
+  }
+
+  if (allowedNacionais === null) return nacionalOptions;
+  return nacionalOptions.filter((nac) => allowedNacionais!.has(nac));
+};
+
 // ── Mapas derivados para filtragem contextual por pai no buildGroupTree ───────
 
 /** loja → regional (derivado de LOJAS_BY_REGIONAL) */
@@ -1573,6 +1705,17 @@ const LOJA_TO_REGIONAL: Record<string, string> = REGIONAL_OPTIONS.reduce(
   (acc, regional) => {
     (LOJAS_BY_REGIONAL[regional] || []).forEach((store) => {
       acc[store] = regional;
+    });
+    return acc;
+  },
+  {} as Record<string, string>,
+);
+
+/** loja → nacional (derivado de LOJAS_BY_NACIONAL) */
+const LOJA_TO_NACIONAL: Record<string, string> = NAC_OPTIONS.reduce(
+  (acc, nac) => {
+    (LOJAS_BY_NACIONAL[nac] || []).forEach((store) => {
+      acc[store] = nac;
     });
     return acc;
   },
@@ -1593,6 +1736,20 @@ const CIDADES_BY_REGIONAL: Record<string, string[]> = REGIONAL_OPTIONS.reduce(
   {} as Record<string, string[]>,
 );
 
+/** nacional → cidades (derivado de LOJAS_BY_NACIONAL + LOJA_TO_CIDADE) */
+const CIDADES_BY_NACIONAL: Record<string, string[]> = NAC_OPTIONS.reduce(
+  (acc, nac) => {
+    const cities = new Set<string>();
+    (LOJAS_BY_NACIONAL[nac] || []).forEach((store) => {
+      const city = LOJA_TO_CIDADE[store];
+      if (city) cities.add(city);
+    });
+    acc[nac] = Array.from(cities).sort();
+    return acc;
+  },
+  {} as Record<string, string[]>,
+);
+
 /**
  * Aplica restrições de contexto do nível pai na lista de opções do nível filho.
  *
@@ -1602,11 +1759,12 @@ const CIDADES_BY_REGIONAL: Record<string, string[]> = REGIONAL_OPTIONS.reduce(
  * Regras suportadas (conforme planilha de cadastro):
  *  regional → loja   (LOJAS_BY_REGIONAL)
  *  regional → cidade (CIDADES_BY_REGIONAL)
+ *  nacional → loja, cidade, regional, estado (LOJAS_BY_NACIONAL)
  *  cidade   → loja   (LOJAS_BY_CIDADE)
  *  estado   → cidade (CIDADES_BY_ESTADO)
  *  estado   → loja   (via estado → cidade → loja)
  *  rede     → loja   (prefixo CE* = Centauro, demais = Fisia)
- *  loja     → regional, cidade, estado (inversos)
+ *  loja     → regional, cidade, estado, nacional (inversos)
  *
  * Para pares sem relação mapeada, retorna as opções sem alteração (fallback seguro).
  */
@@ -1628,6 +1786,8 @@ export const applyParentContextToOptions = (
     if (childAttrId === "loja") {
       if (parentAttrId === "regional") {
         allowed = new Set(LOJAS_BY_REGIONAL[parentValue] || []);
+      } else if (parentAttrId === "nacional") {
+        allowed = new Set(LOJAS_BY_NACIONAL[parentValue] || []);
       } else if (parentAttrId === "cidade") {
         allowed = new Set(LOJAS_BY_CIDADE[extractCityName(parentValue)] || []);
       } else if (parentAttrId === "estado") {
@@ -1650,6 +1810,8 @@ export const applyParentContextToOptions = (
     else if (childAttrId === "cidade") {
       if (parentAttrId === "regional") {
         allowed = new Set(CIDADES_BY_REGIONAL[parentValue] || []);
+      } else if (parentAttrId === "nacional") {
+        allowed = new Set(CIDADES_BY_NACIONAL[parentValue] || []);
       } else if (parentAttrId === "estado") {
         allowed = new Set(CIDADES_BY_ESTADO[normalizeStateOption(parentValue)] || []);
       } else if (parentAttrId === "rede") {
@@ -1679,6 +1841,13 @@ export const applyParentContextToOptions = (
           });
         });
         allowed = regionals;
+      } else if (parentAttrId === "nacional") {
+        const regionals = new Set<string>();
+        (LOJAS_BY_NACIONAL[parentValue] || []).forEach((store) => {
+          const regional = LOJA_TO_REGIONAL[store];
+          if (regional) regionals.add(regional);
+        });
+        allowed = regionals;
       } else if (parentAttrId === "cidade") {
         const regionals = new Set<string>();
         (LOJAS_BY_CIDADE[extractCityName(parentValue)] || []).forEach((store) => {
@@ -1696,6 +1865,42 @@ export const applyParentContextToOptions = (
         allowed = new Set(
           Array.from(getStoresFromChannels([parentValue]))
             .map((store) => LOJA_TO_REGIONAL[store])
+            .filter(Boolean),
+        );
+      }
+    }
+
+    // ── nacional como filho ───────────────────────────────────────────
+    else if (childAttrId === "nacional") {
+      if (parentAttrId === "estado") {
+        const cities = CIDADES_BY_ESTADO[normalizeStateOption(parentValue)] || [];
+        const stores = cities.flatMap((city) => LOJAS_BY_CIDADE[city] || []);
+        allowed = new Set(stores.map((store) => LOJA_TO_NACIONAL[store]).filter(Boolean));
+      } else if (parentAttrId === "regional") {
+        allowed = new Set(
+          (LOJAS_BY_REGIONAL[parentValue] || [])
+            .map((store) => LOJA_TO_NACIONAL[store])
+            .filter(Boolean),
+        );
+      } else if (parentAttrId === "cidade") {
+        allowed = new Set(
+          (LOJAS_BY_CIDADE[extractCityName(parentValue)] || [])
+            .map((store) => LOJA_TO_NACIONAL[store])
+            .filter(Boolean),
+        );
+      } else if (parentAttrId === "loja") {
+        const nac = LOJA_TO_NACIONAL[parentValue];
+        allowed = nac ? new Set([nac]) : new Set();
+      } else if (parentAttrId === "rede") {
+        allowed = new Set(
+          Array.from(getStoresFromNetworks([parentValue]))
+            .map((store) => LOJA_TO_NACIONAL[store])
+            .filter(Boolean),
+        );
+      } else if (parentAttrId === "canal") {
+        allowed = new Set(
+          Array.from(getStoresFromChannels([parentValue]))
+            .map((store) => LOJA_TO_NACIONAL[store])
             .filter(Boolean),
         );
       }
@@ -1735,6 +1940,19 @@ export const applyParentContextToOptions = (
       } else if (parentAttrId === "canal") {
         allowed = new Set(
           Array.from(getStoresFromChannels([parentValue]))
+            .map((store) => LOJA_TO_CIDADE[store])
+            .filter(Boolean)
+            .map(
+              (city) =>
+                Object.entries(CIDADES_BY_ESTADO).find(([, cities]) =>
+                  cities.includes(city),
+                )?.[0],
+            )
+            .filter(Boolean),
+        );
+      } else if (parentAttrId === "nacional") {
+        allowed = new Set(
+          (LOJAS_BY_NACIONAL[parentValue] || [])
             .map((store) => LOJA_TO_CIDADE[store])
             .filter(Boolean)
             .map(
